@@ -7,31 +7,38 @@ module.exports = {
     name: "gamble",
     execute(message, args) {
         const user = message.author.id;
-        const bet = parseInt(args[0]);
+        const betArg = args[0]?.toLowerCase();
 
-        if (!bet || bet <= 0) {
-            return message.reply("❌ Usage: wgamble <amount>");
-        }
+        if (!betArg) return message.reply("❌ Usage: `wgamble <amount|all>`");
 
         const now = Date.now();
         const cd = cooldowns.get(user) || 0;
 
-        if (now < cd) {
-            db.get(`SELECT expires_at FROM buffs WHERE user_id=? AND buff='energy_drink' AND expires_at > ?`, [user, now], (err, drink) => {
-                if (!drink) {
-                    const left = Math.ceil((cd - now) / 1000);
-                    return message.reply(`⏳ Wait **${left}s**`);
-                }
-                cooldowns.set(user, 0);
-                runGamble();
-            });
-        } else {
-            cooldowns.set(user, now + config.cooldowns.gamble);
-            runGamble();
-        }
+        db.get(`SELECT wallet FROM users WHERE user_id=?`, [user], (err, data) => {
+            if (!data) return message.reply("❌ User error");
 
-        function runGamble() {
-            db.get("SELECT wallet FROM users WHERE user_id=?", [user], (err, data) => {
+            const bet = betArg === "all" ? data.wallet : parseInt(betArg);
+
+            if (!bet || bet <= 0) return message.reply("❌ Invalid amount");
+            if (data.wallet < bet) return message.reply("❌ Not enough money");
+
+            if (now < cd) {
+                db.get(`SELECT expires_at FROM buffs WHERE user_id=? AND buff='energy_drink' AND expires_at > ?`, [user, now], (err, drink) => {
+                    if (!drink) {
+                        const left = Math.ceil((cd - now) / 1000);
+                        return message.reply(`⏳ Wait **${left}s**`);
+                    }
+                    cooldowns.set(user, 0);
+                    runGamble(bet);
+                });
+            } else {
+                cooldowns.set(user, now + config.cooldowns.gamble);
+                runGamble(bet);
+            }
+        });
+
+        function runGamble(bet) {
+            db.get(`SELECT wallet FROM users WHERE user_id=?`, [user], (err, data) => {
                 if (!data || data.wallet < bet) {
                     return message.reply("❌ Not enough money");
                 }
@@ -61,7 +68,7 @@ module.exports = {
                         const net = winnings - bet;
 
                         db.run("UPDATE users SET wallet = wallet + ?, heat = heat + ? WHERE user_id=?", [net, heatGain, user]);
-                        message.reply(`🎰 ${result}${hasCharm ? " 🍀" : ""}\n💰 ${net >= 0 ? "+" : ""}**${net}**`);
+                        message.reply(`🎰 ${result}${hasCharm ? " 🍀" : ""}\n💸 Bet: **${bet}** | 💰 ${net >= 0 ? "+" : ""}**${net}**`);
                     }
                 );
             });

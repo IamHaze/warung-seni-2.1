@@ -98,37 +98,81 @@ module.exports = {
         }
 
         if (item === "lottery_ticket") {
+            const qtyArg = args[1]?.toLowerCase();
+
             db.get(`SELECT amount FROM inventory WHERE user_id=? AND item='lottery_ticket'`, [user], (err, inv) => {
                 if (!inv || inv.amount < 1) return message.reply("❌ You don't have a **lottery_ticket**! Buy one with `wbuy lottery_ticket`.");
 
-                db.run(`UPDATE inventory SET amount = amount - 1 WHERE user_id=? AND item='lottery_ticket'`, [user]);
+                const qty = qtyArg === "all" ? inv.amount : (parseInt(qtyArg) || 1);
+
+                if (qty <= 0) return message.reply("❌ Invalid amount");
+                if (qty > inv.amount) return message.reply(`❌ You only have **${inv.amount}** lottery ticket(s).`);
+
+                if (qty === 1) {
+                    db.run(`UPDATE inventory SET amount = amount - 1 WHERE user_id=? AND item='lottery_ticket'`, [user]);
+                    db.run(`DELETE FROM inventory WHERE user_id=? AND item='lottery_ticket' AND amount <= 0`, [user]);
+
+                    const roll = Math.random();
+                    let prize, label;
+
+                    if (roll < 0.01) {
+                        prize = 500000; label = "🏆 **JACKPOT!!!** 500,000";
+                    } else if (roll < 0.05) {
+                        prize = 50000; label = "💎 **MEGA WIN!** 50,000";
+                    } else if (roll < 0.15) {
+                        prize = 10000; label = "🌟 **BIG WIN!** 10,000";
+                    } else if (roll < 0.35) {
+                        prize = 2500; label = "✅ **Win!** 2,500";
+                    } else if (roll < 0.55) {
+                        prize = 500; label = "🎟️ **Small Win** 500 (ticket refund)";
+                    } else {
+                        prize = 0; label = "❌ **Better luck next time!** 0";
+                    }
+
+                    if (prize > 0) {
+                        db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [prize, user]);
+                    }
+
+                    return message.reply(
+                        `🎟️ **LOTTERY TICKET**\n\n` +
+                        `${label}\n` +
+                        `💰 +**${prize}** added to wallet`
+                    );
+                }
+
+                db.run(`UPDATE inventory SET amount = amount - ? WHERE user_id=? AND item='lottery_ticket'`, [qty, user]);
                 db.run(`DELETE FROM inventory WHERE user_id=? AND item='lottery_ticket' AND amount <= 0`, [user]);
 
-                const roll = Math.random();
-                let prize, label;
+                let totalPrize = 0;
+                const results = { jackpot: 0, mega: 0, big: 0, win: 0, small: 0, loss: 0 };
 
-                if (roll < 0.01) {
-                    prize = 500000; label = "🏆 **JACKPOT!!!** 500,000";
-                } else if (roll < 0.05) {
-                    prize = 50000; label = "💎 **MEGA WIN!** 50,000";
-                } else if (roll < 0.15) {
-                    prize = 10000; label = "🌟 **BIG WIN!** 10,000";
-                } else if (roll < 0.35) {
-                    prize = 2500; label = "✅ **Win!** 2,500";
-                } else if (roll < 0.55) {
-                    prize = 500; label = "🎟️ **Small Win** 500 (ticket refund)";
-                } else {
-                    prize = 0; label = "❌ **Better luck next time!** 0";
+                for (let i = 0; i < qty; i++) {
+                    const roll = Math.random();
+                    if (roll < 0.01) { totalPrize += 500000; results.jackpot++; }
+                    else if (roll < 0.05) { totalPrize += 50000; results.mega++; }
+                    else if (roll < 0.15) { totalPrize += 10000; results.big++; }
+                    else if (roll < 0.35) { totalPrize += 2500; results.win++; }
+                    else if (roll < 0.55) { totalPrize += 500; results.small++; }
+                    else { results.loss++; }
                 }
 
-                if (prize > 0) {
-                    db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [prize, user]);
+                if (totalPrize > 0) {
+                    db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [totalPrize, user]);
                 }
+
+                const breakdown = [
+                    results.jackpot > 0 ? `🏆 JACKPOT x${results.jackpot}` : "",
+                    results.mega > 0    ? `💎 MEGA WIN x${results.mega}` : "",
+                    results.big > 0     ? `🌟 BIG WIN x${results.big}` : "",
+                    results.win > 0     ? `✅ Win x${results.win}` : "",
+                    results.small > 0   ? `🎟️ Small Win x${results.small}` : "",
+                    results.loss > 0    ? `❌ Loss x${results.loss}` : ""
+                ].filter(Boolean).join("\n");
 
                 message.reply(
-                    `🎟️ **LOTTERY TICKET**\n\n` +
-                    `${label}\n` +
-                    `💰 +**${prize}** added to wallet`
+                    `🎟️ **LOTTERY — ${qty} Tickets**\n\n` +
+                    `${breakdown}\n\n` +
+                    `💰 Total Won: **+${totalPrize}** added to wallet`
                 );
             });
             return;
