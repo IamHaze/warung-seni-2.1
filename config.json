@@ -1,0 +1,208 @@
+{
+  "token": "MTQ5MzA2MzUwNTIzNzI1MDA5OA.G2iBHL.J1-Tq4BettptxjOjBTWC0IDzgF1iJOQ3u3BKZw",
+  "prefix": "w",
+  "admin": {
+    "owners": [
+      "990072589533724752"
+    ],
+    "roles": [],
+    "bypass_cooldown": true
+  },
+  "eventChannel": "1493104595272990830",
+  "economy": {
+    "starting_balance": 500,
+    "max_wallet": 10000000,
+    "inflation_control": 0.02
+  },
+  "cooldowns": {
+    "work": 60000,
+    "crime": 120000,
+    "daily": 86400000,
+    "rob": 180000,
+    "farm": 60000,
+    "trade": 30000,
+    "heist": 300000,
+    "gamble": 5000
+  },
+  "xp": {
+    "work": 10,
+    "crime": 15,
+    "farm": 5,
+    "trade": 8,
+    "level_multiplier": 1.2
+  },
+  "gamble": {
+    "jackpot_chance": 0.05,
+    "double_chance": 0.25,
+    "even_chance": 0.5
+  },
+  "items": {
+    "printer": {
+      "base_price": 1000,
+      "income": 50,
+      "volatility": 0.1
+    },
+    "factory": {
+      "base_price": 5000,
+      "income": 300,
+      "volatility": 0.15
+    },
+    "lab": {
+      "base_price": 20000,
+      "income": 1200,
+      "volatility": 0.2
+    },
+    "quantum_core": {
+      "base_price": 100000,
+      "income": 5000,
+      "volatility": 0.3
+    },
+    "warehouse": {
+      "base_price": 350000,
+      "income": 15000,
+      "volatility": 0.2
+    },
+    "gold_printer": {
+      "base_price": 0,
+      "income": 500,
+      "volatility": 0.2
+    },
+    "ai_factory": {
+      "base_price": 0,
+      "income": 2000,
+      "volatility": 0.25
+    },
+    "dark_lab": {
+      "base_price": 0,
+      "income": 10000,
+      "volatility": 0.35
+    },
+    "gold_mine": {
+      "base_price": 0,
+      "income": 25000,
+      "volatility": 0.25
+    },
+    "diamond_mine": {
+      "base_price": 0,
+      "income": 60000,
+      "volatility": 0.3
+    },
+    "power_plant": {
+      "base_price": 0,
+      "income": 120000,
+      "volatility": 0.3
+    },
+    "oil_refinery": {
+      "base_price": 0,
+      "income": 250000,
+      "volatility": 0.35
+    },
+    "offshore_drill": {
+      "base_price": 0,
+      "income": 500000,
+      "volatility": 0.35
+    },
+    "bank": {
+      "base_price": 0,
+      "income": 1000000,
+      "volatility": 0.4
+    },
+    "oil_rig": {
+      "base_price": 0,
+      "income": 2500000,
+      "volatility": 0.4
+    },
+    "nuclear_plant": {
+      "base_price": 0,
+      "income": 5000000,
+      "volatility": 0.4
+    },
+    "space_station": {
+      "base_price": 0,
+      "income": 10000000,
+      "volatility": 0.4
+    },
+    "frey": {
+      "base_price": 0,
+      "income": 5000000,
+      "volatility": 0.5
+    },
+    "lockpick": {
+      "base_price": 500,
+      "income": 0,
+      "volatility": 0
+    },
+    "hacker_kit": {
+      "base_price": 2000,
+      "income": 0,
+      "volatility": 0
+    },
+    "emp_device": {
+      "base_price": 5000,
+      "income": 0,
+      "volatility": 0
+    },
+    "getaway_car": {
+      "base_price": 3000,
+      "income": 0,
+      "volatility": 0
+    },
+    "guard_dog": {
+      "base_price": 3000,
+      "income": 0,
+      "volatility": 0
+    },
+    "safe": {
+      "base_price": 5000,
+      "income": 0,
+      "volatility": 0
+    },
+    "alarm": {
+      "base_price": 2000,
+      "income": 0,
+      "volatility": 0
+    },
+    "vault": {
+      "base_price": 20000,
+      "income": 0,
+      "volatility": 0
+    },
+    "shadow_crown": {
+      "base_price": 5000000,
+      "income": 0,
+      "volatility": 0
+    },
+    "lucky_charm": {
+      "base_price": 1500,
+      "income": 0,
+      "volatility": 0
+    },
+    "energy_drink": {
+      "base_price": 3000,
+      "income": 0,
+      "volatility": 0
+    },
+    "lottery_ticket": {
+      "base_price": 500,
+      "income": 0,
+      "volatility": 0
+    }
+  },
+  "market": {
+    "update_interval": 60000,
+    "trend_strength": 0.2,
+    "npc_trader_chance": 0.3,
+    "npc_trade_volume": 5
+  },
+  "events": {
+    "drop_interval": 300000,
+    "drop_amount": 500,
+    "crash_chance": 0.03,
+    "boom_chance": 0.03
+  },
+  "prestige": {
+    "base_cost": 150000,
+    "multiplier": 1.5,
+    "income_bonus_per_level": 0.2
+  }
+}

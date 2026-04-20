@@ -1,2 +1,2 @@
-# warung-seni-2.1
-A discord game bot
+# Warung-Seni-2.0
+Discord self host bot

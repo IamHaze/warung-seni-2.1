@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Economy Dashboard</title>
+</head>
+<body>
+
+<h1>📊 Users</h1>
+<table border="1">
+<tr>
+    <th>ID</th>
+    <th>Wallet</th>
+    <th>Bank</th>
+    <th>XP</th>
+    <th>Level</th>
+</tr>
+
+<% users.forEach(u => { %>
+<tr>
+    <td><%= u.user_id %></td>
+    <td><%= u.wallet %></td>
+    <td><%= u.bank %></td>
+    <td><%= u.xp %></td>
+    <td><%= u.level %></td>
+</tr>
+<% }) %>
+</table>
+
+<h2>💰 Give Money</h2>
+<form method="POST" action="/give">
+    User ID: <input name="user">
+    Amount: <input name="amount">
+    <button type="submit">Give</button>
+</form>
+
+<h2>⚠️ Reset User</h2>
+<form method="POST" action="/reset">
+    User ID: <input name="user">
+    <button type="submit">Reset</button>
+</form>
+
+<h1>📈 Market</h1>
+<table border="1">
+<tr>
+    <th>Item</th>
+    <th>Price</th>
+    <th>Demand</th>
+    <th>Supply</th>
+</tr>
+
+<% market.forEach(m => { %>
+<tr>
+    <td><%= m.item %></td>
+    <td><%= m.price %></td>
+    <td><%= m.demand %></td>
+    <td><%= m.supply %></td>
+</tr>
+<% }) %>
+</table>
+
+</body>
+</html>
