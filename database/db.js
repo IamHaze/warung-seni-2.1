@@ -11,7 +11,12 @@ db.serialize(() => {
             wallet INTEGER DEFAULT 500,
             bank INTEGER DEFAULT 0,
             xp INTEGER DEFAULT 0,
-            level INTEGER DEFAULT 1
+            level INTEGER DEFAULT 1,
+            heat INTEGER DEFAULT 0,
+            prestige INTEGER DEFAULT 0,
+            last_daily INTEGER DEFAULT 0,
+            last_rob INTEGER DEFAULT 0,
+            pending_income INTEGER DEFAULT 0
         )
     `);
 
@@ -21,6 +26,7 @@ db.serialize(() => {
             user_id TEXT,
             item TEXT,
             amount INTEGER,
+            level INTEGER DEFAULT 1,
             PRIMARY KEY(user_id, item)
         )
     `);
@@ -35,7 +41,7 @@ db.serialize(() => {
         )
     `);
 
-    // SHADOW CROWN LOG — track last buyer for 24hr rebuy ban
+    // SHADOW CROWN LOG
     db.run(`
         CREATE TABLE IF NOT EXISTS shadow_crown_log (
             user_id TEXT PRIMARY KEY,
@@ -43,7 +49,7 @@ db.serialize(() => {
         )
     `);
 
-    // BUFFS — active item effects per user
+    // BUFFS
     db.run(`
         CREATE TABLE IF NOT EXISTS buffs (
             user_id TEXT,
@@ -53,6 +59,71 @@ db.serialize(() => {
         )
     `);
 
+    // SKILLS
+    db.run(`
+        CREATE TABLE IF NOT EXISTS skills (
+            user_id TEXT,
+            skill TEXT,
+            xp INTEGER,
+            PRIMARY KEY(user_id, skill)
+        )
+    `);
+
+    // FISHING LOG
+    db.run(`
+        CREATE TABLE IF NOT EXISTS fishing_log (
+            user_id TEXT,
+            fish TEXT,
+            count INTEGER DEFAULT 0,
+            total_value INTEGER DEFAULT 0,
+            PRIMARY KEY(user_id, fish)
+        )
+    `);
+
+    // DUEL LOG
+    db.run(`
+        CREATE TABLE IF NOT EXISTS duel_log (
+            user_id TEXT PRIMARY KEY,
+            wins INTEGER DEFAULT 0,
+            losses INTEGER DEFAULT 0,
+            total_won INTEGER DEFAULT 0,
+            total_lost INTEGER DEFAULT 0
+        )
+    `);
+
+    // ── SAFE COLUMN ADDITIONS (no data loss) ──
+    // SQLite doesn't support IF NOT EXISTS on ALTER TABLE,
+    // so we check information_schema first.
+
+    const userColumns = [
+        ["heat", "INTEGER DEFAULT 0"],
+        ["prestige", "INTEGER DEFAULT 0"],
+        ["last_rob", "INTEGER DEFAULT 0"],
+        ["pending_income", "INTEGER DEFAULT 0"],
+        ["xp", "INTEGER DEFAULT 0"],
+        ["level", "INTEGER DEFAULT 1"]
+    ];
+
+    const inventoryColumns = [
+        ["level", "INTEGER DEFAULT 1"]
+    ];
+
+    function addMissingColumns(table, columns) {
+        columns.forEach(([col, type]) => {
+            db.all(`PRAGMA table_info(${table})`, [], (err, rows) => {
+                if (err) return;
+                const existing = (rows || []).map(r => r.name);
+                if (!existing.includes(col)) {
+                    db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, (err) => {
+                        if (!err) console.log(`✅ Added column ${table}.${col}`);
+                    });
+                }
+            });
+        });
+    }
+
+    addMissingColumns("users", userColumns);
+    addMissingColumns("inventory", inventoryColumns);
 });
 
 module.exports = db;
