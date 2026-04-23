@@ -77,11 +77,12 @@ module.exports = {
                                             );
                                         }
 
-                                        // 🚨 Alarm — DM victim (bypassed by EMP)
+                                        // 🚨 Alarm — DM victim with robber's username (bypassed by EMP)
                                         if (!hasEmp && def["alarm"]) {
+                                            const robberName = message.author.username;
                                             target.send(
                                                 `🚨 **ROB ATTEMPT!**\n` +
-                                                `<@${user}> is trying to rob you right now!\n` +
+                                                `👤 **${robberName}** (<@${user}>) is trying to rob you right now!\n` +
                                                 `Quick, type \`wdep all\` to protect your coins!`
                                             ).catch(() => {});
                                         }

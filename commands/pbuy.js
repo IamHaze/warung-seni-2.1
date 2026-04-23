@@ -14,7 +14,21 @@ const REQUIREMENTS = {
     nuclear_plant:  11,
     space_station:  12,
     warung_island:  10,
-    frey:           10
+    frey:           10,
+    quantum_reactor: 20,
+    dyson_sphere:   21,
+    dark_matter_forge: 22,
+    antimatter_engine: 23,
+    galactic_trade_hub: 30,
+    void_citadel:   31,
+    nebula_refinery: 32,
+    cosmic_treasury: 33,
+    singularity_core: 40,
+    multiverse_gate: 41,
+    infinity_vault: 42,
+    omega_forge:    43,
+    eternal_throne: 44,
+    genesis_engine: 45
 };
 
 module.exports = {

@@ -127,6 +127,101 @@
       "income": 5000000,
       "volatility": 0.5
     },
+    "quantum_reactor": {
+      "base_price": 0,
+      "income": 25000000,
+      "volatility": 0.4
+    },
+    "dyson_sphere": {
+      "base_price": 0,
+      "income": 50000000,
+      "volatility": 0.4
+    },
+    "dark_matter_forge": {
+      "base_price": 0,
+      "income": 100000000,
+      "volatility": 0.45
+    },
+    "antimatter_engine": {
+      "base_price": 0,
+      "income": 200000000,
+      "volatility": 0.45
+    },
+    "galactic_trade_hub": {
+      "base_price": 0,
+      "income": 500000000,
+      "volatility": 0.45
+    },
+    "void_citadel": {
+      "base_price": 0,
+      "income": 1000000000,
+      "volatility": 0.5
+    },
+    "nebula_refinery": {
+      "base_price": 0,
+      "income": 2000000000,
+      "volatility": 0.5
+    },
+    "cosmic_treasury": {
+      "base_price": 0,
+      "income": 5000000000,
+      "volatility": 0.5
+    },
+    "singularity_core": {
+      "base_price": 0,
+      "income": 10000000000,
+      "volatility": 0.55
+    },
+    "multiverse_gate": {
+      "base_price": 0,
+      "income": 25000000000,
+      "volatility": 0.55
+    },
+    "infinity_vault": {
+      "base_price": 0,
+      "income": 50000000000,
+      "volatility": 0.55
+    },
+    "omega_forge": {
+      "base_price": 0,
+      "income": 100000000000,
+      "volatility": 0.6
+    },
+    "eternal_throne": {
+      "base_price": 0,
+      "income": 250000000000,
+      "volatility": 0.6
+    },
+    "genesis_engine": {
+      "base_price": 0,
+      "income": 500000000000,
+      "volatility": 0.6
+    },
+    "ascension_matrix": {
+      "base_price": 0,
+      "income": 1000000000000,
+      "volatility": 0.65
+    },
+    "divine_nexus": {
+      "base_price": 0,
+      "income": 2500000000000,
+      "volatility": 0.65
+    },
+    "absolute_zero": {
+      "base_price": 0,
+      "income": 5000000000000,
+      "volatility": 0.65
+    },
+    "omnipress": {
+      "base_price": 0,
+      "income": 10000000000000,
+      "volatility": 0.7
+    },
+    "creator_beacon": {
+      "base_price": 0,
+      "income": 25000000000000,
+      "volatility": 0.7
+    },
     "lockpick": {
       "base_price": 500,
       "income": 0,
