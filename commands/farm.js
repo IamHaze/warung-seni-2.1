@@ -12,9 +12,9 @@ const CODES = [
 ];
 
 const DIFFICULTIES = [
-    { name: "Easy",   codes: 1, time: 15000, mult: 1.0 },
-    { name: "Medium", codes: 2, time: 20000, mult: 1.5 },
-    { name: "Hard",   codes: 3, time: 25000, mult: 2.5 }
+    { name: "Easy",   codes: 1, time: 15000, mult: 0.3 },
+    { name: "Medium", codes: 2, time: 20000, mult: 0.5 },
+    { name: "Hard",   codes: 3, time: 25000, mult: 0.8 }
 ];
 
 function randomCode() {

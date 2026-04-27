@@ -91,6 +91,15 @@ db.serialize(() => {
         )
     `);
 
+    // AI ROB LOG
+    db.run(`
+        CREATE TABLE IF NOT EXISTS ai_rob_log (
+            user_id TEXT PRIMARY KEY,
+            amount INTEGER DEFAULT 0,
+            time INTEGER DEFAULT 0
+        )
+    `);
+
     // ── SAFE COLUMN ADDITIONS (no data loss) ──
     // SQLite doesn't support IF NOT EXISTS on ALTER TABLE,
     // so we check information_schema first.

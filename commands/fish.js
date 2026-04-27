@@ -59,7 +59,7 @@ function pickLocation(level) {
 
 module.exports = {
     name: "fish",
-    execute(message, args) {
+    async execute(message, args) {
         const user = message.author.id;
         const now = Date.now();
         const cd = cooldowns.get(user) || 0;
@@ -77,108 +77,122 @@ module.exports = {
         }
 
         cooldowns.set(user, now + COOLDOWN);
-        goFish();
+        await goFish();
 
-        function goFish() {
-            db.get(`SELECT wallet, level, prestige FROM users WHERE user_id=?`, [user], (err, u) => {
-                if (err || !u) return message.reply("❌ User error");
+        async function goFish() {
+            return new Promise(resolve => {
+                db.get(`SELECT wallet, level, prestige FROM users WHERE user_id=?`, [user], async (err, u) => {
+                    if (err || !u) {
+                        await message.reply("❌ User error");
+                        return resolve();
+                    }
 
-                const location = pickLocation(u.level || 1);
-                const fish = pickFish();
-                const baseValue = Math.floor(fish.value * location.bonus);
-                const prestigeBonus = 1 + ((u.prestige || 0) * 0.05);
-                const finalValue = Math.floor(baseValue * prestigeBonus);
+                    const location = pickLocation(u.level || 1);
+                    const fish = pickFish();
+                    const baseValue = Math.floor(fish.value * location.bonus);
+                    const prestigeBonus = 1 + ((u.prestige || 0) * 0.05);
+                    const finalValue = Math.floor(baseValue * prestigeBonus);
 
-                const row = new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId("fish_reel")
-                        .setLabel("Reel In!")
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji("🎣"),
-                    new ButtonBuilder()
-                        .setCustomId("fish_release")
-                        .setLabel("Release")
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji("🌊")
-                );
+                    const row = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId("fish_reel")
+                            .setLabel("Reel In!")
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji("🎣"),
+                        new ButtonBuilder()
+                            .setCustomId("fish_release")
+                            .setLabel("Release")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji("🌊")
+                    );
 
-                message.reply(
-                    `🎣 **FISHING** — ${location.emoji} ${location.name}\n\n` +
-                    `Something is biting... Reel it in!\n` +
-                    `⏳ You have **10 seconds** to react!\n\n` +
-                    `*${location.desc}*`,
-                    { components: [row] }
-                ).then(fishMsg => {
-                    const collector = fishMsg.createMessageComponentCollector({
-                        componentType: ComponentType.Button,
-                        time: 10000,
-                        max: 1,
-                        filter: i => i.user.id === user
-                    });
-
-                    let resolved = false;
-
-                    collector.on("collect", async (interaction) => {
-                        resolved = true;
-
-                        if (interaction.customId === "fish_release") {
-                            await interaction.update({
-                                content:
-                                    `🌊 **Released!**\n\n` +
-                                    `You let the fish go. Maybe next time!\n` +
-                                    `🎣 Keep fishing with \`wfish\``,
-                                components: []
-                            });
-                            return;
-                        }
-
-                        const catchRoll = Math.random();
-                        let catchRate = 0.85;
-                        if (fish.rarity === "Epic") catchRate = 0.7;
-                        if (fish.rarity === "Legendary") catchRate = 0.5;
-                        if (fish.rarity === "Mythic") catchRate = 0.3;
-
-                        if (catchRoll > catchRate) {
-                            await interaction.update({
-                                content:
-                                    `🎣 **It got away!**\n\n` +
-                                    `${fish.emoji} **${fish.name}** slipped off the hook!\n` +
-                                    `${RARITY_COLORS[fish.rarity]} ${fish.rarity}\n\n` +
-                                    `Better luck next time...`,
-                                components: []
-                            });
-                            return;
-                        }
-
-                        db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [finalValue, user]);
-
-                        let streak = "";
-                        if (fish.rarity === "Legendary") streak = "\n🌟 **LEGENDARY CATCH!**";
-                        if (fish.rarity === "Mythic") streak = "\n🔥 **MYTHIC CATCH!!**";
-
-                        await interaction.update({
-                            content:
-                                `🎣 **CAUGHT!**${streak}\n\n` +
-                                `${fish.emoji} **${fish.name}**\n` +
-                                `${RARITY_COLORS[fish.rarity]} ${fish.rarity}\n` +
-                                `📍 ${location.emoji} ${location.name} (x${location.bonus})\n` +
-                                `💰 +**${finalValue.toLocaleString()}** coins` +
-                                (u.prestige > 0 ? `\n🌟 Prestige Bonus: x${prestigeBonus.toFixed(2)}` : ""),
-                            components: []
+                    try {
+                        const fishMsg = await message.reply({
+                            content: `🎣 **FISHING** — ${location.emoji} ${location.name}\n\n` +
+                                `Something is biting... Reel it in!\n` +
+                                `⏳ You have **10 seconds** to react!\n\n` +
+                                `*${location.desc}*`,
+                            components: [row]
                         });
-                    });
 
-                    collector.on("end", (_, reason) => {
-                        if (!resolved && reason === "time") {
-                            fishMsg.edit({
+                        const collector = fishMsg.createMessageComponentCollector({
+                            componentType: ComponentType.Button,
+                            time: 10000,
+                            filter: i => i.user.id === user
+                        });
+
+                        let resolved = false;
+
+                        collector.on("collect", async (interaction) => {
+                            if (resolved) return;
+                            resolved = true;
+                            collector.stop();
+
+                            if (interaction.customId === "fish_release") {
+                                await interaction.update({
+                                    content:
+                                        `🌊 **Released!**\n\n` +
+                                        `You let the fish go. Maybe next time!\n` +
+                                        `🎣 Keep fishing with \`wfish\``,
+                                    components: []
+                                });
+                                return resolve();
+                            }
+
+                            const catchRoll = Math.random();
+                            let catchRate = 0.85;
+                            if (fish.rarity === "Epic") catchRate = 0.7;
+                            if (fish.rarity === "Legendary") catchRate = 0.5;
+                            if (fish.rarity === "Mythic") catchRate = 0.3;
+
+                            if (catchRoll > catchRate) {
+                                await interaction.update({
+                                    content:
+                                        `🎣 **It got away!**\n\n` +
+                                        `${fish.emoji} **${fish.name}** slipped off the hook!\n` +
+                                        `${RARITY_COLORS[fish.rarity]} ${fish.rarity}\n\n` +
+                                        `Better luck next time...`,
+                                    components: []
+                                });
+                                return resolve();
+                            }
+
+                            db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [finalValue, user]);
+
+                            let streak = "";
+                            if (fish.rarity === "Legendary") streak = "\n🌟 **LEGENDARY CATCH!**";
+                            if (fish.rarity === "Mythic") streak = "\n🔥 **MYTHIC CATCH!!**";
+
+                            await interaction.update({
                                 content:
-                                    `⏰ **Too slow!**\n\n` +
-                                    `The fish swam away while you were daydreaming...\n` +
-                                    `🎣 Try again with \`wfish\``,
+                                    `🎣 **CAUGHT!**${streak}\n\n` +
+                                    `${fish.emoji} **${fish.name}**\n` +
+                                    `${RARITY_COLORS[fish.rarity]} ${fish.rarity}\n` +
+                                    `📍 ${location.emoji} ${location.name} (x${location.bonus})\n` +
+                                    `💰 +**${finalValue.toLocaleString()}** coins` +
+                                    (u.prestige > 0 ? `\n🌟 Prestige Bonus: x${prestigeBonus.toFixed(2)}` : ""),
                                 components: []
-                            }).catch(() => {});
-                        }
-                    });
+                            });
+                            resolve();
+                        });
+
+                        collector.on("end", async (_, reason) => {
+                            if (!resolved && reason === "time") {
+                                resolved = true;
+                                await fishMsg.edit({
+                                    content:
+                                        `⏰ **Too slow!**\n\n` +
+                                        `The fish swam away while you were daydreaming...\n` +
+                                        `🎣 Try again with \`wfish\``,
+                                    components: []
+                                }).catch(() => {});
+                            }
+                            resolve();
+                        });
+                    } catch (e) {
+                        console.error("Fish error:", e);
+                        resolve();
+                    }
                 });
             });
         }
