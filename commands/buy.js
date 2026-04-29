@@ -2,8 +2,8 @@ const db = require("../database/db");
 const getUser = require("../core/getUser");
 const config = require("../config.json");
 
-const MAX_PER_PURCHASE = 50;
-const MAX_STACK = 50;
+const MAX_PER_PURCHASE = 100;
+const MAX_STACK = 100;
 const CROWN_EXPIRY = 24 * 60 * 60 * 1000;
 
 const SINGLE_ONLY = ["lucky_charm", "energy_drink", "guard_dog", "safe", "alarm", "vault", "hacker_kit", "emp_device", "getaway_car"];
@@ -16,7 +16,7 @@ function buyShadowCrown(db, user, wallet, message) {
         return message.reply(
             `❌ Not enough money!\n` +
             `💸 Cost: **${price.toLocaleString()}**\n` +
-            `💰 Your wallet: **${wallet}**`
+            `💰 Your wallet: **${wallet.toLocaleString()}**`
         );
     }
 
@@ -103,8 +103,8 @@ module.exports = {
             if (row.wallet < totalCost) {
                 return message.reply(
                     `❌ Biforti xde duit tp nk beli hahahaha!\n` +
-                    `💸 Cost: **${totalCost}** (${quantity}x ${item})\n` +
-                    `💰 Your wallet: **${row.wallet}**`
+                    `💸 Cost: **${totalCost.toLocaleString()}** (${quantity}x ${item})\n` +
+                    `💰 Your wallet: **${row.wallet.toLocaleString()}**`
                 );
             }
 
@@ -142,8 +142,8 @@ module.exports = {
                             message.reply(
                                 `🛒 **Purchase Complete!**\n\n` +
                                 `📦 Item: **${item}** x${quantity}\n` +
-                                `💸 Total Spent: **${totalCost}**\n` +
-                                `💰 Remaining: **${row.wallet - totalCost}**`
+                                `💸 Total Spent: **${totalCost.toLocaleString()}**\n` +
+                                `💰 Remaining: **${(row.wallet - totalCost).toLocaleString()}**`
                             );
                         });
                     }

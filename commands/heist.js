@@ -80,7 +80,7 @@ module.exports = {
                                 return message.reply(
                                     `🚓 **HEIST FAILED!**\n\n` +
                                     `💀 Padan muka kena saman!\n` +
-                                    `💸 Denda: **${fine}**${carUsed ? " *(getaway car saved 50%!)*" : ""}\n` +
+                                    `💸 Denda: **${fine.toLocaleString()}**${carUsed ? " *(getaway car saved 50%!)*" : ""}\n` +
                                     `🔑 Lockpick consumed.`
                                 );
                             }
@@ -97,7 +97,7 @@ module.exports = {
                             if (Math.random() < user.prestige * 0.05) {
                                 const extra = Math.floor(Math.random() * 2000) + 500;
                                 reward += extra;
-                                bonusLoot = `\n🎁 Bonus Loot: **${extra}**`;
+                                bonusLoot = `\n🎁 Bonus Loot: **${extra.toLocaleString()}**`;
                             }
 
                             db.run(
@@ -107,7 +107,7 @@ module.exports = {
 
                             message.reply(
                                 `🏦 **BANK HEIST SUCCESS!**\n\n` +
-                                `💰 Loot: **${reward}**${bonusLoot}\n` +
+                                `💰 Loot: **${reward.toLocaleString()}**${bonusLoot}\n` +
                                 `${hackerUsed ? "💻 Hacker kit boosted success!\n" : ""}` +
                                 `🌟 Prestige Bonus Active\n` +
                                 `🔑 Lockpick consumed.`

@@ -16,7 +16,7 @@ module.exports = {
             );
 
             if (row.wallet < cost) {
-                return message.reply(`❌ Need ${cost} coins to prestige`);
+                return message.reply(`❌ Need ${cost.toLocaleString()} coins to prestige`);
             }
 
             const newPrestige = currentPrestige + 1;
@@ -45,8 +45,8 @@ module.exports = {
                                 message.reply(
                                     `🌟 PRESTIGE SUCCESS!\n\n` +
                                     `🏆 Level: ${currentPrestige} → ${newPrestige}\n` +
-                                    `💸 Cost: ${cost}\n` +
-                                    `💰 Wallet reset to ${config.economy.starting_balance}`
+                                    `💸 Cost: ${cost.toLocaleString()}\n` +
+                                    `💰 Wallet reset to ${config.economy.starting_balance.toLocaleString()}`
                                 );
                             }
                         );

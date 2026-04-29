@@ -49,7 +49,7 @@ module.exports = {
                 `🎯 Your guess: **${choice.toUpperCase()}** 7\n` +
                 `🎲 Rolled: **${roll}**\n\n` +
                 `${resultText}\n` +
-                `💰 ${net >= 0 ? "+" : ""}**${net}**`
+                `💰 ${net >= 0 ? "+" : ""}**${net.toLocaleString()}**`
             );
         });
     }

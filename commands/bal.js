@@ -9,7 +9,7 @@ module.exports = {
             if (!row) return message.reply("❌ Error loading user");
 
             message.reply(
-                `💰 Wallet: ${row.wallet} | 🏦 Bank: ${row.bank}\n🌟 Prestige: ${row.prestige}`
+                `💰 Wallet: ${row.wallet.toLocaleString()} | 🏦 Bank: ${row.bank.toLocaleString()}\n🌟 Prestige: ${row.prestige}`
             );
         });
     }

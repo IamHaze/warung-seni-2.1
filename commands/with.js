@@ -15,7 +15,7 @@ module.exports = {
             const amount = args[0].toLowerCase() === "all" ? row.bank : parseInt(args[0]);
 
             if (!amount || amount <= 0) return message.reply("❌ Invalid amount");
-            if (amount > row.bank) return message.reply(`❌ Not enough in bank!\n🏦 Bank: **${row.bank}**`);
+            if (amount > row.bank) return message.reply(`❌ Not enough in bank!\n🏦 Bank: **${row.bank.toLocaleString()}**`);
 
             db.run(
                 `UPDATE users SET bank = bank - ?, wallet = wallet + ? WHERE user_id=?`,
@@ -24,9 +24,9 @@ module.exports = {
                     if (err) return message.reply("❌ DB error");
                     message.reply(
                         `💸 **Withdrawn!**\n\n` +
-                        `💸 Amount: **${amount}**\n` +
-                        `🏦 New Bank: **${row.bank - amount}**\n` +
-                        `💰 New Wallet: **${row.wallet + amount}**`
+                        `💸 Amount: **${amount.toLocaleString()}**\n` +
+                        `🏦 New Bank: **${(row.bank - amount).toLocaleString()}**\n` +
+                        `💰 New Wallet: **${(row.wallet + amount).toLocaleString()}**`
                     );
                 }
             );

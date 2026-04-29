@@ -82,11 +82,12 @@ module.exports = {
                         }
 
                         const codeStr = farmCodes.map(c => `\`${c}\``).join("  ");
+                        const potentialEarned = Math.floor(baseIncome * diff.mult);
 
                         message.reply(
-                            `🌾 **FARM COLLECTION** — ${diff.name}\n\n` +
+                            `🌾 **FARM COLLECTION** — ${diff.name} (x${diff.mult})\n\n` +
                             `Type the code(s) within **${diff.time / 1000}s** to collect!\n` +
-                            `💰 Potential income: **${baseIncome.toLocaleString()}** (x${diff.mult} if you succeed)\n\n` +
+                            `💰 You will earn: **${potentialEarned.toLocaleString()}** coins\n\n` +
                             `🔑 Code: ${codeStr}`
                         );
 

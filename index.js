@@ -66,8 +66,26 @@ client.on("messageCreate", async (message) => {
     }
 });
 
-/* ================= PASSIVE INCOME (every 10 mins) ================= */
-const MAX_PENDING_INCOME = 100000000; // 100M cap per tick
+/* ================= PASSIVE INCOME ================= */
+const ITEM_INCOME = {
+    printer:        50,
+    factory:        300,
+    lab:            1200,
+    quantum_core:   5000,
+    warehouse:      15000,
+    gold_printer:   500,
+    ai_factory:     2000,
+    dark_lab:       10000,
+    gold_mine:      25000,
+    diamond_mine:   60000,
+    power_plant:    120000,
+    oil_refinery:   250000,
+    offshore_drill: 500000,
+    bank:           1000000,
+    oil_rig:        2500000,
+    frey:           5000000
+};
+
 setInterval(() => {
     console.log("💸 Passive tick");
 
@@ -75,21 +93,20 @@ setInterval(() => {
         if (err || !rows) return;
 
         rows.forEach(entry => {
-            const itemData = config.items[entry.item];
-            if (!itemData || !itemData.income) return;
+            const base = ITEM_INCOME[entry.item];
+            if (!base) return;
 
             const level = entry.level || 1;
 
-            db.get(`SELECT prestige, pending_income FROM users WHERE user_id=?`, [entry.user_id], (err, user) => {
+            db.get(`SELECT prestige FROM users WHERE user_id=?`, [entry.user_id], (err, user) => {
                 if (err || !user) return;
 
                 const bonus = 1 + (user.prestige * config.prestige.income_bonus_per_level);
-                const income = Math.floor(itemData.income * level * bonus);
-                const newPending = Math.min((user.pending_income || 0) + income, MAX_PENDING_INCOME);
+                const income = Math.floor(base * level * bonus);
 
                 db.run(
-                    `UPDATE users SET pending_income = ? WHERE user_id=?`,
-                    [newPending, entry.user_id]
+                    `UPDATE users SET pending_income = pending_income + ? WHERE user_id=?`,
+                    [income, entry.user_id]
                 );
             });
         });
@@ -132,41 +149,50 @@ setInterval(() => {
     console.log("🚓 Heat cooled down");
 }, 300000);
 
-/* ================= AI ROB SYSTEM — Every 30 mins ================= */
-setInterval(() => {
-    db.all(`SELECT user_id, wallet FROM users WHERE wallet > 1000 LIMIT 1`, [], (err, users) => {
-        if (err || !users || users.length === 0) return;
+/* ================= MEMBER LEAVE - DELETE DATA ================= */
+client.on("guildMemberRemove", (member) => {
+    const userId = member.id;
 
-        const victim = users[0];
-        const robAmount = Math.floor(victim.wallet * (Math.random() * 0.3 + 0.1));
+    db.serialize(() => {
+        db.run(`DELETE FROM users WHERE user_id=?`, [userId], (err) => {
+            if (err) {
+                console.error(`Error deleting user ${userId}:`, err);
+                return;
+            }
+            console.log(`🗑️ Deleted all data for user ${userId} (${member.user.username})`);
+        });
 
-        db.run(`UPDATE users SET wallet = wallet - ? WHERE user_id=?`, [robAmount, victim.user_id]);
-
-        const eventChannel = client.channels.cache.get(config.eventChannel);
-        if (eventChannel) {
-            eventChannel.send(
-                `🤖 **AI ROB ATTEMPT!**\n\n` +
-                `<@${victim.user_id}> was targeted by a rogue AI!\n` +
-                `💸 Stolen: **${robAmount}** coins\n\n` +
-                `⚔️ **FIGHT BACK?** Type \`wfight\` to counter-attack the AI and reclaim your coins!`
-            ).catch(() => {});
-
-            client.users.fetch(victim.user_id).then(u => {
-                u.send(
-                    `🤖 **YOU WERE ROBBED BY AN AI!**\n\n` +
-                    `💸 Lost: **${robAmount}** coins\n` +
-                    `🛡️ You have **5 minutes** to fight back!\n\n` +
-                    `Type \`wfight\` in any server to counter-attack!`
-                ).catch(() => {});
-            }).catch(() => {});
-
-            db.run(
-                `INSERT INTO ai_rob_log (user_id, amount, time) VALUES (?, ?, ?)
-                 ON CONFLICT(user_id) DO UPDATE SET amount = ?, time = ?`,
-                [victim.user_id, robAmount, Date.now(), robAmount, Date.now()]
-            );
-        }
+        db.run(`DELETE FROM inventory WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM skills WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM fishing_log WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM duel_log WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM buffs WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM pet_log WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM shadow_crown_log WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM pets WHERE user_id=?`, [userId]);
     });
-}, 1800000);
+});
+
+/* ================= PET NEGLECT CHECK ================= */
+const PET_NEGLECT_TIMEOUT = 24 * 60 * 60 * 1000;
+setInterval(() => {
+    const now = Date.now();
+    const cutoff = now - PET_NEGLECT_TIMEOUT;
+
+    db.all(
+        `SELECT user_id, pet_name FROM pets WHERE last_action < ?`,
+        [cutoff],
+        (err, pets) => {
+            if (!pets || pets.length === 0) return;
+
+            pets.forEach(pet => {
+                db.run(`DELETE FROM pets WHERE user_id=?`, [pet.user_id], (err) => {
+                    if (!err) console.log(`🚶 Pet "${pet.pet_name}" left due to neglect from ${pet.user_id}`);
+                });
+            });
+        }
+    );
+}, 600000);
+
 
 client.login(config.token);

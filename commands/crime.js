@@ -35,12 +35,12 @@ module.exports = {
                 if (!success) {
                     const loss = Math.floor(Math.random() * 200) + 50;
                     db.run(`UPDATE users SET wallet = wallet - ?, heat = heat + 1 WHERE user_id=?`, [loss, user]);
-                    return message.reply(`🚓 **Crime failed!** Hahaha Rugi **${loss}** | 🔥 Heat +1`);
+                    return message.reply(`🚓 **Crime failed!** Hahaha Rugi **${loss.toLocaleString()}** | 🔥 Heat +1`);
                 }
 
                 const gain = Math.floor(Math.random() * 500) + 200;
                 db.run(`UPDATE users SET wallet = wallet + ?, heat = heat + 1 WHERE user_id=?`, [gain, user]);
-                message.reply(`💰 **Crime success!** Tahniah **${gain}** | 🔥 Heat +1`);
+                message.reply(`💰 **Crime success!** Tahniah **${gain.toLocaleString()}** | 🔥 Heat +1`);
             });
         }
     }

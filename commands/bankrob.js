@@ -49,7 +49,7 @@ module.exports = {
                         db.run(`UPDATE users SET wallet = wallet - ?, heat = heat + 3 WHERE user_id=?`, [fine, user]);
                         return message.reply(
                             `🚓 **Anda Gagal. LEMAH!**\n\n` +
-                            `💸 Fine: **${fine}** (20% of wallet)\n` +
+                            `💸 Fine: **${fine.toLocaleString()}** (20% of wallet)\n` +
                             `🔥 Heat +3\n` +
                             `🔑 Lockpick consumed.`
                         );
@@ -64,14 +64,14 @@ module.exports = {
                     message.reply(
                         `🏦 **Tahniah la berjaya rompak!**\n\n` +
                         `🎯 Target: <@${target.id}>\n` +
-                        `💸 Stolen: **${amount}** (${stealPercent}% of bank)\n` +
+                        `💸 Stolen: **${amount.toLocaleString()}** (${stealPercent}% of bank)\n` +
                         `🔥 Heat +3\n` +
                         `🔑 Lockpick consumed.`
                     );
 
                     target.send(
                         `🚨 **Anda Telah Dirompak!**\n` +
-                        `💸 Lost: **${amount}** coins from your bank\n` +
+                        `💸 Lost: **${amount.toLocaleString()}** coins from your bank\n` +
                         `🏦 Use \`wdep\` sparingly — keep less in your bank!`
                     ).catch(() => {});
                 });

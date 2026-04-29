@@ -60,7 +60,7 @@ module.exports = {
                 `│  ${s1}  ${s2}  ${s3}  │\n` +
                 `└─────────────┘\n\n` +
                 `${resultText}\n` +
-                `💰 ${net >= 0 ? "+" : ""}**${net}**`
+                `💰 ${net >= 0 ? "+" : ""}**${net.toLocaleString()}**`
             );
         });
     }

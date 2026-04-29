@@ -35,7 +35,7 @@ module.exports = {
                 `🪙 **COIN FLIP**\n\n` +
                 `${emoji} Result: **${result.toUpperCase()}**\n` +
                 `${win ? "✅ You won!" : "❌ You lost!"}\n` +
-                `💰 ${net >= 0 ? "+" : ""}**${net}**`
+                `💰 ${net >= 0 ? "+" : ""}**${net.toLocaleString()}**`
             );
         });
     }

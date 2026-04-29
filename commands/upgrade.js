@@ -56,8 +56,8 @@ module.exports = {
                             if (i === 0) {
                                 return message.reply(
                                     `❌ Not enough money to upgrade!\n` +
-                                    `💸 Next upgrade costs: **${cost}**\n` +
-                                    `💰 Your wallet: **${wallet}**\n` +
+                                    `💸 Next upgrade costs: **${cost.toLocaleString()}**\n` +
+                                    `💰 Your wallet: **${wallet.toLocaleString()}**\n` +
                                     `📊 Current level: **${level}**`
                                 );
                             }
@@ -100,9 +100,9 @@ module.exports = {
                                     `✅ BERJAYA: **${successCount}**\n` +
                                     `❌ GAGAL: **${failCount}**\n` +
                                     (downgrades > 0 ? `⬇️ Downgrades: **${downgrades}**\n` : ``) +
-                                    `💸 Spent: **${totalCost}**\n` +
+                                    `💸 Spent: **${totalCost.toLocaleString()}**\n` +
                                     `📊 Final Level: **${level}/15**\n` +
-                                    `💰 Remaining: **${wallet}**`
+                                    `💰 Remaining: **${wallet.toLocaleString()}**`
                                 );
                             }
                         );

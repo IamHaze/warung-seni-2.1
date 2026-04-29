@@ -117,7 +117,7 @@ module.exports = {
                                             db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [counter, target.id]);
                                             return message.reply(
                                                 `🔫 **COUNTERED!**\n` +
-                                                `<@${target.id}> fought back and stole **${counter}** from you!\n` +
+                                                `<@${target.id}> fought back and stole **${counter.toLocaleString()}** from you!\n` +
                                                 `🔑 Lockpick consumed.`
                                             );
                                         }
@@ -142,7 +142,7 @@ module.exports = {
 
                                             return message.reply(
                                                 `🚓 **Kantoi Lu!**\n\n` +
-                                                `💸 Fine: **${penalty}**${carUsed ? " *(getaway car saved 50%!)*" : ""}\n` +
+                                                `💸 Fine: **${penalty.toLocaleString()}**${carUsed ? " *(getaway car saved 50%!)*" : ""}\n` +
                                                 `🔥 Heat +1\n` +
                                                 `🔑 Lockpick consumed.`
                                             );
@@ -158,14 +158,14 @@ module.exports = {
                                         if (!hasEmp && def["safe"]) {
                                             const protection = 5000;
                                             amount = Math.max(0, amount - protection);
-                                            defenseLog += `\n🔒 Safe blocked **${protection}** coins`;
+                                            defenseLog += `\n🔒 Safe blocked **${protection.toLocaleString()}** coins`;
                                         }
 
                                         // 🏛️ Vault — blocks 40% (bypassed by EMP)
                                         if (!hasEmp && def["vault"]) {
                                             const blocked = Math.floor(amount * 0.4);
                                             amount -= blocked;
-                                            defenseLog += `\n🏛️ Vault blocked **${blocked}** coins (40%)`;
+                                            defenseLog += `\n🏛️ Vault blocked **${blocked.toLocaleString()}** coins (40%)`;
                                         }
 
                                         if (amount <= 0) {
@@ -189,7 +189,7 @@ module.exports = {
                                         message.reply(
                                             `💰 **Tahniah dasar pencuri!**\n\n` +
                                             `🎯 Target: <@${target.id}>\n` +
-                                            `💸 Stolen: **${amount}** (${percent}%)` +
+                                            `💸 Stolen: **${amount.toLocaleString()}** (${percent}%)` +
                                             `${hasEmp ? "\n⚡ EMP bypassed defenses!" : ""}` +
                                             `${defenseLog}\n` +
                                             `🔥 Heat +1\n` +
@@ -199,7 +199,7 @@ module.exports = {
                                         // 📩 DM victim
                                         target.send(
                                             `🚨 **Anda dh kena rompak!**\n` +
-                                            `💸 Lost: **${amount}** coins\n` +
+                                            `💸 Lost: **${amount.toLocaleString()}** coins\n` +
                                             `🛡️ Buy defense items with \`wbuy guard_dog\` or \`wbuy vault\`!`
                                         ).catch(() => {});
                                     });

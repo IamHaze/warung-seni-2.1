@@ -37,7 +37,7 @@ module.exports = {
                 const earned = Math.floor(base * bonus);
 
                 db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [earned, userId]);
-                message.reply(`💼 Keje penat2 dpt la **${earned}**\n🔥 Prestige Bonus: x${bonus.toFixed(2)}`);
+                message.reply(`💼 Keje penat2 dpt la **${earned.toLocaleString()}**\n🔥 Prestige Bonus: x${bonus.toFixed(2)}`);
             });
         }
     }

@@ -16,7 +16,7 @@ module.exports = {
             const amount = args[0].toLowerCase() === "all" ? row.wallet : parseInt(args[0]);
 
             if (!amount || amount <= 0) return message.reply("❌ Invalid amount");
-            if (amount > row.wallet) return message.reply(`❌ Duit xckup tu!\n💰 Wallet: **${row.wallet}**`);
+            if (amount > row.wallet) return message.reply(`❌ Duit xckup tu!\n💰 Wallet: **${row.wallet.toLocaleString()}**`);
 
             db.run(
                 `UPDATE users SET wallet = wallet - ?, bank = bank + ? WHERE user_id=?`,
@@ -25,9 +25,9 @@ module.exports = {
                     if (err) return message.reply("❌ DB error");
                     message.reply(
                         `🏦 **Deposited!**\n\n` +
-                        `💸 Amount: **${amount}**\n` +
-                        `🏦 New Bank: **${row.bank + amount}**\n` +
-                        `💰 Remaining Wallet: **${row.wallet - amount}**`
+                        `💸 Amount: **${amount.toLocaleString()}**\n` +
+                        `🏦 New Bank: **${(row.bank + amount).toLocaleString()}**\n` +
+                        `💰 Remaining Wallet: **${(row.wallet - amount).toLocaleString()}**`
                     );
                 }
             );

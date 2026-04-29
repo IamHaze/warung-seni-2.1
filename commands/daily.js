@@ -40,11 +40,11 @@ module.exports = {
                     if (err) return message.reply("❌ DB error");
                     message.reply(
                         `🎁 **Daily Reward!**\n\n` +
-                        `💰 Base: ${baseReward}\n` +
-                        `🔥 Streak Bonus (Day ${streak}): +${streakBonus}\n` +
-                        `🌟 Prestige Bonus: +${prestigeBonus}\n` +
+                        `💰 Base: ${baseReward.toLocaleString()}\n` +
+                        `🔥 Streak Bonus (Day ${streak}): +${streakBonus.toLocaleString()}\n` +
+                        `🌟 Prestige Bonus: +${prestigeBonus.toLocaleString()}\n` +
                         `━━━━━━━━━━━━\n` +
-                        `✅ Total: **${total}** coins`
+                        `✅ Total: **${total.toLocaleString()}** coins`
                     );
                 }
             );

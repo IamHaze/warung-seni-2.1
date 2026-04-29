@@ -68,7 +68,7 @@ module.exports = {
                         const net = winnings - bet;
 
                         db.run("UPDATE users SET wallet = wallet + ?, heat = heat + ? WHERE user_id=?", [net, heatGain, user]);
-                        message.reply(`🎰 ${result}${hasCharm ? " 🍀" : ""}\n💸 Bet: **${bet}** | 💰 ${net >= 0 ? "+" : ""}**${net}**`);
+                        message.reply(`🎰 ${result}${hasCharm ? " 🍀" : ""}\n💸 Bet: **${bet.toLocaleString()}** | 💰 ${net >= 0 ? "+" : ""}**${net.toLocaleString()}**`);
                     }
                 );
             });

@@ -100,6 +100,21 @@ db.serialize(() => {
         )
     `);
 
+    // PETS
+    db.run(`
+        CREATE TABLE IF NOT EXISTS pets (
+            user_id TEXT PRIMARY KEY,
+            pet_name TEXT,
+            pet_type TEXT,
+            hunger INTEGER DEFAULT 0,
+            happiness INTEGER DEFAULT 100,
+            last_fed INTEGER DEFAULT 0,
+            last_played INTEGER DEFAULT 0,
+            last_action INTEGER DEFAULT 0,
+            created_at INTEGER DEFAULT 0
+        )
+    `);
+
     // ── SAFE COLUMN ADDITIONS (no data loss) ──
     // SQLite doesn't support IF NOT EXISTS on ALTER TABLE,
     // so we check information_schema first.
@@ -110,7 +125,9 @@ db.serialize(() => {
         ["last_rob", "INTEGER DEFAULT 0"],
         ["pending_income", "INTEGER DEFAULT 0"],
         ["xp", "INTEGER DEFAULT 0"],
-        ["level", "INTEGER DEFAULT 1"]
+        ["level", "INTEGER DEFAULT 1"],
+        ["collect_day", "INTEGER DEFAULT 0"],
+        ["collect_day_total", "INTEGER DEFAULT 0"]
     ];
 
     const inventoryColumns = [
