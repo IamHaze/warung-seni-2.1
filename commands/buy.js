@@ -6,7 +6,7 @@ const MAX_PER_PURCHASE = 100;
 const MAX_STACK = 100;
 const CROWN_EXPIRY = 24 * 60 * 60 * 1000;
 
-const SINGLE_ONLY = ["lucky_charm", "energy_drink", "guard_dog", "safe", "alarm", "vault", "hacker_kit", "emp_device", "getaway_car"];
+const SINGLE_ONLY = ["lucky_charm", "energy_drink", "guard_dog", "safe", "alarm", "vault", "hacker_kit", "emp_device", "getaway_car", "bamboo_rod", "iron_rod", "golden_rod", "crystal_rod"];
 
 function buyShadowCrown(db, user, wallet, message) {
     const now = Date.now();
@@ -78,7 +78,12 @@ module.exports = {
         const prestigeOnly = [
             "gold_printer", "ai_factory", "dark_lab",
             "gold_mine", "diamond_mine", "power_plant",
-            "oil_refinery", "offshore_drill", "bank", "oil_rig", "frey"
+            "oil_refinery", "offshore_drill", "bank", "oil_rig", "frey",
+            "quantum_reactor", "dyson_sphere", "dark_matter_forge", "antimatter_engine",
+            "galactic_trade_hub", "void_citadel", "nebula_refinery", "cosmic_treasury",
+            "singularity_core", "multiverse_gate", "infinity_vault", "omega_forge",
+            "eternal_throne", "genesis_engine", "nuclear_plant", "space_station",
+            "warung_island"
         ];
         if (prestigeOnly.includes(item)) {
             return message.reply("❌ Bareyy Exclusive ni bohh.. ada kt prestige shop je (`wpshop`).");

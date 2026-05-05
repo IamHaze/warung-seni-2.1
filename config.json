@@ -281,6 +281,36 @@
       "base_price": 500,
       "income": 0,
       "volatility": 0
+    },
+    "bamboo_rod": {
+      "base_price": 500,
+      "income": 0,
+      "volatility": 0
+    },
+    "iron_rod": {
+      "base_price": 2000,
+      "income": 0,
+      "volatility": 0
+    },
+    "golden_rod": {
+      "base_price": 8000,
+      "income": 0,
+      "volatility": 0
+    },
+    "crystal_rod": {
+      "base_price": 25000,
+      "income": 0,
+      "volatility": 0
+    },
+    "worm_bait": {
+      "base_price": 300,
+      "income": 0,
+      "volatility": 0
+    },
+    "magic_bait": {
+      "base_price": 1200,
+      "income": 0,
+      "volatility": 0
     }
   },
   "market": {

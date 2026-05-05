@@ -132,7 +132,8 @@ db.serialize(() => {
         ["xp", "INTEGER DEFAULT 0"],
         ["level", "INTEGER DEFAULT 1"],
         ["collect_day", "INTEGER DEFAULT 0"],
-        ["collect_day_total", "INTEGER DEFAULT 0"]
+        ["collect_day_total", "INTEGER DEFAULT 0"],
+        ["fish_streak", "INTEGER DEFAULT 0"]
     ];
 
     const inventoryColumns = [

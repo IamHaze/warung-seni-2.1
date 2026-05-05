@@ -16,7 +16,10 @@ CREATE TABLE IF NOT EXISTS users (
     prestige INTEGER DEFAULT 0,
     last_daily INTEGER DEFAULT 0,
     last_rob INTEGER DEFAULT 0,
-    pending_income INTEGER DEFAULT 0
+    pending_income INTEGER DEFAULT 0,
+    collect_day INTEGER DEFAULT 0,
+    collect_day_total INTEGER DEFAULT 0,
+    fish_streak INTEGER DEFAULT 0
 );
 
 -- INVENTORY
@@ -74,4 +77,30 @@ CREATE TABLE IF NOT EXISTS duel_log (
     losses INTEGER DEFAULT 0,
     total_won INTEGER DEFAULT 0,
     total_lost INTEGER DEFAULT 0
+);
+
+-- AI ROB LOG
+CREATE TABLE IF NOT EXISTS ai_rob_log (
+    user_id TEXT PRIMARY KEY,
+    amount INTEGER DEFAULT 0,
+    time INTEGER DEFAULT 0
+);
+
+-- PETS
+CREATE TABLE IF NOT EXISTS pets (
+    user_id TEXT PRIMARY KEY,
+    pet_name TEXT,
+    pet_type TEXT,
+    hunger INTEGER DEFAULT 0,
+    happiness INTEGER DEFAULT 100,
+    last_fed INTEGER DEFAULT 0,
+    last_played INTEGER DEFAULT 0,
+    last_action INTEGER DEFAULT 0,
+    created_at INTEGER DEFAULT 0
+);
+
+-- PET NEGLECT LOG
+CREATE TABLE IF NOT EXISTS pet_neglect_log (
+    user_id TEXT PRIMARY KEY,
+    ran_away_at INTEGER DEFAULT 0
 );

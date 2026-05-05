@@ -23,6 +23,14 @@ module.exports = {
             `🚨 \`alarm\`         — 💰 2,000     | DM alert on rob\n` +
             `🏛️ \`vault\`         — 💰 20,000    | Blocks 40% stolen\n\n` +
 
+            `**━━━ 🎣 Fishing Gear ━━━**\n` +
+            `🎋 \`bamboo_rod\`    — 💰 500       | Basic rod\n` +
+            `⚙️ \`iron_rod\`      — 💰 2,000     | +5% catch rate\n` +
+            `✨ \`golden_rod\`    — 💰 8,000     | +12% rarity bonus\n` +
+            `💎 \`crystal_rod\`   — 💰 25,000    | 30% double catch chance\n` +
+            `🪱 \`worm_bait\`     — 💰 300      | +7% catch bonus (consumable)\n` +
+            `✨ \`magic_bait\`    — 💰 1,200     | +10% catch & +20% rarity\n\n` +
+
             `**━━━ 🎲 Consumables ━━━**\n` +
             `🍀 \`lucky_charm\`   — 💰 1,500     | +10% gamble luck (1 use)\n` +
             `⚡ \`energy_drink\`  — 💰 3,000     | Skip next cooldown (1 use)\n` +
