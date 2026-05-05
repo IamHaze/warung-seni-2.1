@@ -36,12 +36,21 @@ function loadCommands(dir) {
 
 loadCommands(path.join(__dirname, "commands"));
 
+/* ================= ALIAS LOADER ================= */
+const ALIASES = require("./core/aliases");
+for (const [alias, cmdName] of Object.entries(ALIASES)) {
+    const cmd = client.commands.get(cmdName);
+    if (cmd) {
+        client.commands.set(alias, cmd);
+        console.log(`🔗 Alias: w${alias} → w${cmdName}`);
+    }
+}
+
 /* ================= READY ================= */
 client.on("clientReady", () => {
     console.log(`🚀 Logged in as ${client.user.tag}`);
-    console.log(`📦 Loaded ${client.commands.size} commands`);
+    console.log(`📦 Loaded ${client.commands.size} commands (incl. aliases)`);
 
-    // ✅ Start events AFTER bot is ready and client is available
     const { startEvents } = require("./core/events");
     startEvents(client);
     console.log("🎲 Event system started");
@@ -167,27 +176,47 @@ client.on("guildMemberRemove", (member) => {
         db.run(`DELETE FROM fishing_log WHERE user_id=?`, [userId]);
         db.run(`DELETE FROM duel_log WHERE user_id=?`, [userId]);
         db.run(`DELETE FROM buffs WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM pet_log WHERE user_id=?`, [userId]);
         db.run(`DELETE FROM shadow_crown_log WHERE user_id=?`, [userId]);
         db.run(`DELETE FROM pets WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM pet_neglect_log WHERE user_id=?`, [userId]);
     });
 });
 
 /* ================= PET NEGLECT CHECK ================= */
+// Runs every 10 minutes — removes pets neglected for 24h and bans owner for 1 week
 const PET_NEGLECT_TIMEOUT = 24 * 60 * 60 * 1000;
 setInterval(() => {
     const now = Date.now();
     const cutoff = now - PET_NEGLECT_TIMEOUT;
 
     db.all(
-        `SELECT user_id, pet_name FROM pets WHERE last_action < ?`,
+        `SELECT user_id, pet_name, pet_type FROM pets WHERE last_action < ?`,
         [cutoff],
         (err, pets) => {
             if (!pets || pets.length === 0) return;
 
             pets.forEach(pet => {
                 db.run(`DELETE FROM pets WHERE user_id=?`, [pet.user_id], (err) => {
-                    if (!err) console.log(`🚶 Pet "${pet.pet_name}" left due to neglect from ${pet.user_id}`);
+                    if (err) return;
+
+                    // Log the neglect — triggers 1-week adoption ban
+                    db.run(
+                        `INSERT INTO pet_neglect_log (user_id, ran_away_at) VALUES (?, ?)
+                         ON CONFLICT(user_id) DO UPDATE SET ran_away_at = ?`,
+                        [pet.user_id, now, now]
+                    );
+
+                    console.log(`💀 Pet "${pet.pet_name}" (${pet.pet_type}) ran away from ${pet.user_id} — 1-week ban applied`);
+
+                    // Try to DM the user
+                    client.users.fetch(pet.user_id).then(user => {
+                        user.send(
+                            `💀 **Your pet ran away!**\n\n` +
+                            `**${pet.pet_name}** left because you didn't care for them for 24 hours.\n\n` +
+                            `⏳ You are **banned from adopting** for **7 days**.\n` +
+                            `*Next time, feed and play with your pet regularly...*`
+                        ).catch(() => {});
+                    }).catch(() => {});
                 });
             });
         }

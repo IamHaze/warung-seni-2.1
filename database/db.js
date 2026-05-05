@@ -115,10 +115,15 @@ db.serialize(() => {
         )
     `);
 
-    // ── SAFE COLUMN ADDITIONS (no data loss) ──
-    // SQLite doesn't support IF NOT EXISTS on ALTER TABLE,
-    // so we check information_schema first.
+    // PET NEGLECT LOG — tracks users banned from adopting after neglect
+    db.run(`
+        CREATE TABLE IF NOT EXISTS pet_neglect_log (
+            user_id TEXT PRIMARY KEY,
+            ran_away_at INTEGER DEFAULT 0
+        )
+    `);
 
+    // ── SAFE COLUMN ADDITIONS ──
     const userColumns = [
         ["heat", "INTEGER DEFAULT 0"],
         ["prestige", "INTEGER DEFAULT 0"],

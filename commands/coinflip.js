@@ -7,10 +7,10 @@ module.exports = {
     execute(message, args) {
         const user = message.author.id;
         const choice = args[0]?.toLowerCase();
-        const bet = parseInt(args[1]);
+        const betArg = args[1]?.toLowerCase();
 
-        if (!choice || !["heads", "tails"].includes(choice) || !bet || bet <= 0) {
-            return message.reply("❌ Usage: `wcoinflip <heads|tails> <amount>`");
+        if (!choice || !["heads", "tails"].includes(choice) || !betArg) {
+            return message.reply("❌ Usage: `wcoinflip <heads|tails> <amount|all>`  |  Alias: `wcf`");
         }
 
         const now = Date.now();
@@ -19,7 +19,12 @@ module.exports = {
         cooldowns.set(user, now + config.cooldowns.gamble);
 
         db.get(`SELECT wallet FROM users WHERE user_id=?`, [user], (err, row) => {
-            if (!row || row.wallet < bet) return message.reply("❌ Not enough money");
+            if (!row) return message.reply("❌ User not found");
+
+            const bet = betArg === "all" ? row.wallet : parseInt(betArg);
+
+            if (!bet || bet <= 0) return message.reply("❌ Invalid amount");
+            if (row.wallet < bet) return message.reply(`❌ Not enough money\n💰 Wallet: **${row.wallet.toLocaleString()}**`);
 
             const result = Math.random() < 0.5 ? "heads" : "tails";
             const win = choice === result;

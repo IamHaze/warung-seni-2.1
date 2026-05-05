@@ -35,9 +35,9 @@ module.exports = {
     name: "blackjack",
     execute(message, args) {
         const user = message.author.id;
-        const bet = parseInt(args[0]);
+        const betArg = args[0]?.toLowerCase();
 
-        if (!bet || bet <= 0) return message.reply("❌ Usage: `wblackjack <amount>`");
+        if (!betArg) return message.reply("❌ Usage: `wblackjack <amount|all>`  |  Alias: `wbj`");
 
         const now = Date.now();
         const cd = cooldowns.get(user) || 0;
@@ -45,7 +45,12 @@ module.exports = {
         cooldowns.set(user, now + 15000);
 
         db.get(`SELECT wallet FROM users WHERE user_id=?`, [user], (err, row) => {
-            if (!row || row.wallet < bet) return message.reply("❌ Not enough money");
+            if (!row) return message.reply("❌ User not found");
+
+            const bet = betArg === "all" ? row.wallet : parseInt(betArg);
+
+            if (!bet || bet <= 0) return message.reply("❌ Invalid bet amount");
+            if (row.wallet < bet) return message.reply(`❌ Not enough money\n💰 Wallet: **${row.wallet.toLocaleString()}**`);
 
             db.run(`UPDATE users SET wallet = wallet - ? WHERE user_id=?`, [bet, user]);
 
@@ -57,7 +62,7 @@ module.exports = {
                 const playerTotal = handTotal(playerHand);
                 const dealerTotal = hideDealer ? cardValue(dealerHand[0].rank) : handTotal(dealerHand);
                 return (
-                    `🃏 **BLACKJACK** — Bet: **${bet}**\n\n` +
+                    `🃏 **BLACKJACK** — Bet: **${bet.toLocaleString()}**\n\n` +
                     `🤵 Dealer: ${showHand(dealerHand, hideDealer)} ${hideDealer ? `(${dealerTotal}+?)` : `= **${dealerTotal}**`}\n` +
                     `👤 You:   ${showHand(playerHand)} = **${playerTotal}**\n\n` +
                     (status ? `${status}\n` : "")
@@ -70,7 +75,7 @@ module.exports = {
                 }
                 const net = payout - bet;
                 await msg.edit({
-                    content: buildMsg(false, `${reason}\n💰 ${net >= 0 ? "+" : ""}**${net}**`),
+                    content: buildMsg(false, `${reason}\n💰 ${net >= 0 ? "+" : ""}**${net.toLocaleString()}**`),
                     components: []
                 });
             };
@@ -83,7 +88,7 @@ module.exports = {
             if (handTotal(playerHand) === 21) {
                 const payout = bet + Math.floor(bet * 1.5);
                 db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [payout, user]);
-                return message.reply(buildMsg(false, `🎉 **BLACKJACK! Natural 21!**\n💰 +**${Math.floor(bet * 1.5)}**`));
+                return message.reply(buildMsg(false, `🎉 **BLACKJACK! Natural 21!**\n💰 +**${Math.floor(bet * 1.5).toLocaleString()}**`));
             }
 
             message.reply({ content: buildMsg(), components: [buttons] }).then(msg => {

@@ -14,12 +14,30 @@ module.exports = {
         db.get(`SELECT * FROM users WHERE user_id=?`, [user], (err, robber) => {
             if (!robber) return message.reply("❌ Your data not found");
 
-            // ⏳ Cooldown check
-            if (robber.last_rob && now - robber.last_rob < cooldown) {
-                const left = Math.floor((cooldown - (now - robber.last_rob)) / 1000);
-                return message.reply(`⏳ Wait **${left}s** before robbing again`);
+            const onCooldown = robber.last_rob && now - robber.last_rob < cooldown;
+
+            if (onCooldown) {
+                db.get(
+                    `SELECT expires_at FROM buffs WHERE user_id=? AND buff='energy_drink' AND expires_at > ?`,
+                    [user, now],
+                    (err, drink) => {
+                        if (!drink) {
+                            const left = Math.floor((cooldown - (now - robber.last_rob)) / 1000);
+                            return message.reply(`⏳ Wait **${left}s** before robbing again`);
+                        }
+                        // ⚡ Energy drink — bypass cooldown
+                        db.run(`UPDATE users SET last_rob=0 WHERE user_id=?`, [user]);
+                        robber.last_rob = 0;
+                        doRob(robber);
+                    }
+                );
+                return;
             }
 
+            doRob(robber);
+        });
+
+        function doRob(robber) {
             // 🔑 REQUIRE lockpick
             db.get(
                 `SELECT amount FROM inventory WHERE user_id=? AND item='lockpick'`,
@@ -53,10 +71,7 @@ module.exports = {
                                         if (victim.wallet <= 0) return message.reply("💀 Target is broke (0 coins)");
 
                                         // 🔑 Consume lockpick
-                                        db.run(
-                                            `UPDATE inventory SET amount = amount - 1 WHERE user_id=? AND item='lockpick'`,
-                                            [user]
-                                        );
+                                        db.run(`UPDATE inventory SET amount = amount - 1 WHERE user_id=? AND item='lockpick'`, [user]);
                                         db.run(`DELETE FROM inventory WHERE user_id=? AND item='lockpick' AND amount <= 0`, [user]);
 
                                         const hasEmp = atk["emp_device"] > 0;
@@ -77,12 +92,11 @@ module.exports = {
                                             );
                                         }
 
-                                        // 🚨 Alarm — DM victim with robber's username (bypassed by EMP)
+                                        // 🚨 Alarm — DM victim (bypassed by EMP)
                                         if (!hasEmp && def["alarm"]) {
-                                            const robberName = message.author.username;
                                             target.send(
                                                 `🚨 **ROB ATTEMPT!**\n` +
-                                                `👤 **${robberName}** (<@${user}>) is trying to rob you right now!\n` +
+                                                `👤 **${message.author.username}** (<@${user}>) is trying to rob you right now!\n` +
                                                 `Quick, type \`wdep all\` to protect your coins!`
                                             ).catch(() => {});
                                         }
@@ -98,7 +112,7 @@ module.exports = {
                                             db.run(`DELETE FROM inventory WHERE user_id=? AND item='hacker_kit' AND amount <= 0`, [user]);
                                         }
 
-                                        const roll = Math.random();
+                                        const roll      = Math.random();
                                         const eventRoll = Math.random();
 
                                         // 🛡️ Dodge
@@ -126,7 +140,6 @@ module.exports = {
                                         if (roll > successRate) {
                                             let penalty = Math.floor(robber.wallet * 0.15);
 
-                                            // 🚗 Getaway car reduces fine
                                             let carUsed = false;
                                             if (atk["getaway_car"] > 0) {
                                                 penalty = Math.floor(penalty * 0.5);
@@ -154,14 +167,12 @@ module.exports = {
 
                                         let defenseLog = "";
 
-                                        // 🔒 Safe — protects flat 5000 (bypassed by EMP)
                                         if (!hasEmp && def["safe"]) {
                                             const protection = 5000;
                                             amount = Math.max(0, amount - protection);
                                             defenseLog += `\n🔒 Safe blocked **${protection.toLocaleString()}** coins`;
                                         }
 
-                                        // 🏛️ Vault — blocks 40% (bypassed by EMP)
                                         if (!hasEmp && def["vault"]) {
                                             const blocked = Math.floor(amount * 0.4);
                                             amount -= blocked;
@@ -196,7 +207,6 @@ module.exports = {
                                             `🔑 Lockpick consumed.`
                                         );
 
-                                        // 📩 DM victim
                                         target.send(
                                             `🚨 **Anda dh kena rompak!**\n` +
                                             `💸 Lost: **${amount.toLocaleString()}** coins\n` +
@@ -209,6 +219,6 @@ module.exports = {
                     );
                 }
             );
-        });
+        }
     }
 };

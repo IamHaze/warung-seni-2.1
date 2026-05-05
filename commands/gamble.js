@@ -9,7 +9,7 @@ module.exports = {
         const user = message.author.id;
         const betArg = args[0]?.toLowerCase();
 
-        if (!betArg) return message.reply("❌ Usage: `wgamble <amount|all>`");
+        if (!betArg) return message.reply("❌ Usage: `wgamble <amount|all>`  |  Alias: `wgb`");
 
         const now = Date.now();
         const cd = cooldowns.get(user) || 0;
