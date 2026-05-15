@@ -51,10 +51,10 @@ client.on("clientReady", () => {
     console.log(`🚀 Logged in as ${client.user.tag}`);
     console.log(`📦 Loaded ${client.commands.size} commands (incl. aliases)`);
 
-    // Existing Shadow Broker / other events
-    const { startEvents } = require("./core/events");
-    startEvents(client);
-    console.log("🎲 Event system started");
+    // Shadow Broker
+    const { startShadowBroker } = require("./core/events");
+    startShadowBroker(client);
+    console.log("🕵️ Shadow Broker started");
 
     // Drop event system (wclaim — 10B-600B, max 32/day)
     const { initDropEvents } = require("./core/dropEvents");
