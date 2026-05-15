@@ -2,7 +2,7 @@ const db = require("../database/db");
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js");
 
 const cooldowns = new Map();
-const COOLDOWN   = 30000;
+const COOLDOWN  = 30000;
 
 /* ───── RODS ───── */
 const RODS = {
@@ -21,19 +21,19 @@ const BAIT = {
 
 /* ───── FISH ───── */
 const FISH = [
-    { name: "Old Boot",       emoji: "👢", value: 5,      weight: 32,  rarity: "Junk",      xp: 1   },
-    { name: "Seaweed",        emoji: "🌿", value: 10,     weight: 26,  rarity: "Junk",      xp: 1   },
-    { name: "Sardine",        emoji: "🐟", value: 50,     weight: 20,  rarity: "Common",    xp: 3   },
-    { name: "Mackerel",       emoji: "🐟", value: 120,    weight: 14,  rarity: "Common",    xp: 5   },
-    { name: "Bass",           emoji: "🐠", value: 300,    weight: 9,   rarity: "Uncommon",  xp: 8   },
-    { name: "Salmon",         emoji: "🐟", value: 600,    weight: 6,   rarity: "Uncommon",  xp: 11  },
-    { name: "Tuna",           emoji: "🐟", value: 1200,   weight: 4,   rarity: "Rare",      xp: 16  },
-    { name: "Swordfish",      emoji: "⚔️", value: 3000,   weight: 2.5, rarity: "Rare",      xp: 22  },
-    { name: "Pufferfish",     emoji: "🐡", value: 6000,   weight: 1.5, rarity: "Epic",      xp: 32  },
-    { name: "Anglerfish",     emoji: "🔦", value: 12000,  weight: 1.0, rarity: "Epic",      xp: 45  },
-    { name: "Golden Koi",     emoji: "✨", value: 30000,  weight: 0.4, rarity: "Legendary", xp: 65  },
-    { name: "Phantom Marlin", emoji: "👻", value: 60000,  weight: 0.2, rarity: "Legendary", xp: 90  },
-    { name: "Leviathan",      emoji: "🐉", value: 250000, weight: 0.08,rarity: "Mythic",    xp: 200 }
+    { name: "Old Boot",       emoji: "👢", value: 5,      weight: 32,   rarity: "Junk",      xp: 1   },
+    { name: "Seaweed",        emoji: "🌿", value: 10,     weight: 26,   rarity: "Junk",      xp: 1   },
+    { name: "Sardine",        emoji: "🐟", value: 50,     weight: 20,   rarity: "Common",    xp: 3   },
+    { name: "Mackerel",       emoji: "🐟", value: 120,    weight: 14,   rarity: "Common",    xp: 5   },
+    { name: "Bass",           emoji: "🐠", value: 300,    weight: 9,    rarity: "Uncommon",  xp: 8   },
+    { name: "Salmon",         emoji: "🐟", value: 600,    weight: 6,    rarity: "Uncommon",  xp: 11  },
+    { name: "Tuna",           emoji: "🐟", value: 1200,   weight: 4,    rarity: "Rare",      xp: 16  },
+    { name: "Swordfish",      emoji: "⚔️", value: 3000,   weight: 2.5,  rarity: "Rare",      xp: 22  },
+    { name: "Pufferfish",     emoji: "🐡", value: 6000,   weight: 1.5,  rarity: "Epic",      xp: 32  },
+    { name: "Anglerfish",     emoji: "🔦", value: 12000,  weight: 1.0,  rarity: "Epic",      xp: 45  },
+    { name: "Golden Koi",     emoji: "✨", value: 30000,  weight: 0.4,  rarity: "Legendary", xp: 65  },
+    { name: "Phantom Marlin", emoji: "👻", value: 60000,  weight: 0.2,  rarity: "Legendary", xp: 90  },
+    { name: "Leviathan",      emoji: "🐉", value: 250000, weight: 0.08, rarity: "Mythic",    xp: 200 }
 ];
 
 const RARITY_DOT = {
@@ -43,11 +43,11 @@ const RARITY_DOT = {
 
 /* ───── LOCATIONS ───── */
 const LOCATIONS = [
-    { name: "Pond",   emoji: "🏞️", mult: 1.0, minLevel: 1  },
-    { name: "River",  emoji: "🏞️", mult: 1.3, minLevel: 5  },
-    { name: "Lake",   emoji: "🏔️", mult: 1.7, minLevel: 10 },
-    { name: "Ocean",  emoji: "🌊", mult: 2.1, minLevel: 20 },
-    { name: "Abyss",  emoji: "🕳️", mult: 3.5, minLevel: 30 }
+    { name: "Pond",  emoji: "🏞️", mult: 1.0, minLevel: 1  },
+    { name: "River", emoji: "🏞️", mult: 1.3, minLevel: 5  },
+    { name: "Lake",  emoji: "🏔️", mult: 1.7, minLevel: 10 },
+    { name: "Ocean", emoji: "🌊", mult: 2.1, minLevel: 20 },
+    { name: "Abyss", emoji: "🕳️", mult: 3.5, minLevel: 30 }
 ];
 
 /* ───── WEATHER (stable per UTC day) ───── */
@@ -128,15 +128,15 @@ module.exports = {
 
         if (!u) return message.reply("❌ User error");
 
-        // Best rod in inventory
+        // Best rod in inventory — fallback to bamboo if none owned
         let rod = RODS.bamboo_rod;
         for (const key of ROD_ORDER) {
             if (rods.find(r => r.item === key && r.amount > 0)) { rod = RODS[key]; break; }
         }
 
-        // Best bait
+        // Best bait in inventory
         let bait = null, baitKey = null;
-        if (baits.find(b => b.item === "magic_bait" && b.amount > 0))      { bait = BAIT.magic_bait; baitKey = "magic_bait"; }
+        if (baits.find(b => b.item === "magic_bait" && b.amount > 0))     { bait = BAIT.magic_bait; baitKey = "magic_bait"; }
         else if (baits.find(b => b.item === "worm_bait" && b.amount > 0)) { bait = BAIT.worm_bait;  baitKey = "worm_bait";  }
 
         const weather  = getTodayWeather();
@@ -160,7 +160,7 @@ module.exports = {
         const multiCatch = Math.random() < rod.multiChance;
         const catchCount = multiCatch ? 2 : 1;
 
-        /* ── Prompt ── */
+        /* ── Cast prompt ── */
         const btnRow = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId("reel").setLabel("🎣 Reel In!").setStyle(ButtonStyle.Primary),
             new ButtonBuilder().setCustomId("release").setLabel("🌊 Release").setStyle(ButtonStyle.Secondary)
@@ -191,7 +191,10 @@ module.exports = {
             /* ── Released ── */
             if (interaction.customId === "release") {
                 db.run(`UPDATE users SET fish_streak = 0 WHERE user_id=?`, [user]);
-                return interaction.update({ content: `🌊 **Released!**\n🔥 Streak reset to 0.`, components: [] });
+                return interaction.update({
+                    content: `🌊 **Released!**\n🔥 Streak reset to 0.`,
+                    components: []
+                });
             }
 
             /* ── Consume bait ── */
@@ -227,19 +230,20 @@ module.exports = {
                     ON CONFLICT(user_id, fish) DO UPDATE SET count = count + 1, total_value = total_value + ?
                 `, [user, fish.name, coins, coins]);
 
-                const special = (fish.rarity === "Mythic" || fish.rarity === "Legendary") ? ` *(${fish.rarity}!)*` : "";
+                const special = (fish.rarity === "Mythic" || fish.rarity === "Legendary")
+                    ? ` *(${fish.rarity}!)*` : "";
                 lines.push(`${RARITY_DOT[fish.rarity]} ${fish.emoji} **${fish.name}**${special} — 💰 +${coins.toLocaleString()}`);
             }
 
-            const newStreak  = streak + 1;
-            const newSb      = streakBonus(newStreak);
+            const newStreak = streak + 1;
+            const newSb     = streakBonus(newStreak);
 
             db.run(`UPDATE users SET wallet = wallet + ?, fish_streak = ? WHERE user_id=?`, [totalCoins, newStreak, user]);
 
-            const banner = catches.some(f => f.rarity === "Mythic")    ? "\n🔥🔥🔥 **MYTHIC CATCH!!!**"
-                         : catches.some(f => f.rarity === "Legendary") ? "\n🌟 **LEGENDARY CATCH!**"
-                         : multiCatch                                   ? "\n🎣 **DOUBLE CATCH!**"
-                         : "";
+            const banner =
+                catches.some(f => f.rarity === "Mythic")    ? "\n🔥🔥🔥 **MYTHIC CATCH!!!**"  :
+                catches.some(f => f.rarity === "Legendary") ? "\n🌟 **LEGENDARY CATCH!**"     :
+                multiCatch                                   ? "\n🎣 **DOUBLE CATCH!**"        : "";
 
             await interaction.update({
                 content:

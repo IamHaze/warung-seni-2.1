@@ -51,9 +51,15 @@ client.on("clientReady", () => {
     console.log(`🚀 Logged in as ${client.user.tag}`);
     console.log(`📦 Loaded ${client.commands.size} commands (incl. aliases)`);
 
+    // Existing Shadow Broker / other events
     const { startEvents } = require("./core/events");
     startEvents(client);
     console.log("🎲 Event system started");
+
+    // Drop event system (wclaim — 10B-600B, max 32/day)
+    const { initDropEvents } = require("./core/dropEvents");
+    initDropEvents(client);
+    console.log("🎁 Drop event system started");
 });
 
 /* ================= MESSAGE ================= */
@@ -110,7 +116,7 @@ setInterval(() => {
             db.get(`SELECT prestige FROM users WHERE user_id=?`, [entry.user_id], (err, user) => {
                 if (err || !user) return;
 
-                const bonus = 1 + (user.prestige * config.prestige.income_bonus_per_level);
+                const bonus  = 1 + (user.prestige * config.prestige.income_bonus_per_level);
                 const income = Math.floor(base * level * bonus);
 
                 db.run(
@@ -171,22 +177,21 @@ client.on("guildMemberRemove", (member) => {
             console.log(`🗑️ Deleted all data for user ${userId} (${member.user.username})`);
         });
 
-        db.run(`DELETE FROM inventory WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM skills WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM fishing_log WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM duel_log WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM buffs WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM inventory WHERE user_id=?`,        [userId]);
+        db.run(`DELETE FROM skills WHERE user_id=?`,           [userId]);
+        db.run(`DELETE FROM fishing_log WHERE user_id=?`,      [userId]);
+        db.run(`DELETE FROM duel_log WHERE user_id=?`,         [userId]);
+        db.run(`DELETE FROM buffs WHERE user_id=?`,            [userId]);
         db.run(`DELETE FROM shadow_crown_log WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM pets WHERE user_id=?`, [userId]);
-        db.run(`DELETE FROM pet_neglect_log WHERE user_id=?`, [userId]);
+        db.run(`DELETE FROM pets WHERE user_id=?`,             [userId]);
+        db.run(`DELETE FROM pet_neglect_log WHERE user_id=?`,  [userId]);
     });
 });
 
 /* ================= PET NEGLECT CHECK ================= */
-// Runs every 10 minutes — removes pets neglected for 24h and bans owner for 1 week
 const PET_NEGLECT_TIMEOUT = 24 * 60 * 60 * 1000;
 setInterval(() => {
-    const now = Date.now();
+    const now    = Date.now();
     const cutoff = now - PET_NEGLECT_TIMEOUT;
 
     db.all(
@@ -199,7 +204,6 @@ setInterval(() => {
                 db.run(`DELETE FROM pets WHERE user_id=?`, [pet.user_id], (err) => {
                     if (err) return;
 
-                    // Log the neglect — triggers 1-week adoption ban
                     db.run(
                         `INSERT INTO pet_neglect_log (user_id, ran_away_at) VALUES (?, ?)
                          ON CONFLICT(user_id) DO UPDATE SET ran_away_at = ?`,
@@ -208,7 +212,6 @@ setInterval(() => {
 
                     console.log(`💀 Pet "${pet.pet_name}" (${pet.pet_type}) ran away from ${pet.user_id} — 1-week ban applied`);
 
-                    // Try to DM the user
                     client.users.fetch(pet.user_id).then(user => {
                         user.send(
                             `💀 **Your pet ran away!**\n\n` +

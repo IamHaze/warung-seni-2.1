@@ -1,5 +1,5 @@
 {
-  "token": "INSER_TOKEN_HERE",
+  "token": "INSERT_TOKEN_HERE",
   "prefix": "w",
   "admin": {
     "owners": [
@@ -9,6 +9,7 @@
     "bypass_cooldown": true
   },
   "eventChannel": "1493104595272990830",
+  "dropChannelId": "1493104595272990830",
   "economy": {
     "starting_balance": 500,
     "max_wallet": 10000000,
@@ -35,6 +36,15 @@
     "jackpot_chance": 0.05,
     "double_chance": 0.25,
     "even_chance": 0.5
+  },
+  "farm": {
+    "tick_interval": 60000,
+    "level_bonus": 0.05
+  },
+  "heat": {
+    "max_before_police": 10,
+    "fine_multiplier": 0.25,
+    "decay_per_minute": 1
   },
   "items": {
     "printer": {
@@ -197,31 +207,6 @@
       "income": 6000000000,
       "volatility": 0.6
     },
-    "ascension_matrix": {
-      "base_price": 0,
-      "income": 10000000000,
-      "volatility": 0.65
-    },
-    "divine_nexus": {
-      "base_price": 0,
-      "income": 15000000000,
-      "volatility": 0.65
-    },
-    "absolute_zero": {
-      "base_price": 0,
-      "income": 25000000000,
-      "volatility": 0.65
-    },
-    "omnipress": {
-      "base_price": 0,
-      "income": 40000000000,
-      "volatility": 0.7
-    },
-    "creator_beacon": {
-      "base_price": 0,
-      "income": 60000000000,
-      "volatility": 0.7
-    },
     "lockpick": {
       "base_price": 500,
       "income": 0,
@@ -288,27 +273,77 @@
       "volatility": 0
     },
     "iron_rod": {
-      "base_price": 2000,
+      "base_price": 3000,
       "income": 0,
       "volatility": 0
     },
     "golden_rod": {
-      "base_price": 8000,
+      "base_price": 15000,
       "income": 0,
       "volatility": 0
     },
     "crystal_rod": {
-      "base_price": 25000,
+      "base_price": 75000,
       "income": 0,
       "volatility": 0
     },
     "worm_bait": {
-      "base_price": 300,
+      "base_price": 200,
       "income": 0,
       "volatility": 0
     },
     "magic_bait": {
-      "base_price": 1200,
+      "base_price": 800,
+      "income": 0,
+      "volatility": 0
+    },
+    "fertilizer": {
+      "base_price": 500,
+      "income": 0,
+      "volatility": 0
+    },
+    "wheat_seed": {
+      "base_price": 100,
+      "income": 0,
+      "volatility": 0
+    },
+    "carrot_seed": {
+      "base_price": 80,
+      "income": 0,
+      "volatility": 0
+    },
+    "corn_seed": {
+      "base_price": 150,
+      "income": 0,
+      "volatility": 0
+    },
+    "strawberry_seed": {
+      "base_price": 350,
+      "income": 0,
+      "volatility": 0
+    },
+    "blueberry_seed": {
+      "base_price": 280,
+      "income": 0,
+      "volatility": 0
+    },
+    "pumpkin_seed": {
+      "base_price": 600,
+      "income": 0,
+      "volatility": 0
+    },
+    "cranberry_seed": {
+      "base_price": 450,
+      "income": 0,
+      "volatility": 0
+    },
+    "starfruit_seed": {
+      "base_price": 2000,
+      "income": 0,
+      "volatility": 0
+    },
+    "ancient_seed": {
+      "base_price": 50000,
       "income": 0,
       "volatility": 0
     }

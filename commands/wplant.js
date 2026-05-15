@@ -2,7 +2,7 @@ const db    = require("../database/db");
 const CROPS = require("../core/cropsData");
 
 const BASE_PLOTS         = 6;
-const PLOTS_PER_PRESTIGE = 5; // +1 plot every 5 prestige levels
+const PLOTS_PER_PRESTIGE = 5;
 
 function getCurrentSeason() {
     const SEASONS = ["spring", "summer", "fall", "winter"];
@@ -15,7 +15,8 @@ module.exports = {
     execute(message, args) {
         const user    = message.author.id;
         const seedKey = args[0]?.toLowerCase();
-        const plotNum = parseInt(args[1]) || null;
+        const isAll   = args[1]?.toLowerCase() === "all";
+        const plotNum = isAll ? null : parseInt(args[1]) || null;
 
         if (!seedKey || !CROPS[seedKey]) {
             const list = Object.entries(CROPS)
@@ -27,9 +28,10 @@ module.exports = {
                 )
                 .join("\n");
             return message.reply(
-                `🌱 **Usage:** \`wplant <seed> [plot#]\`\n\n` +
+                `🌱 **Usage:** \`wplant <seed> [plot# | all]\`\n\n` +
                 `**Available Seeds** — buy with \`wbuy <seed>\`:\n${list}\n\n` +
-                `🌾 View your farm: \`wcrops\``
+                `🌾 View your farm: \`wcrops\`\n` +
+                `💡 \`wplant wheat all\` — plants wheat in every empty plot at once`
             );
         }
 
@@ -49,6 +51,69 @@ module.exports = {
                 db.all(`SELECT plot_number FROM farm_plots WHERE user_id=?`, [user], (err, taken) => {
                     const occupied = new Set((taken || []).map(p => p.plot_number));
 
+                    // ── ALL MODE ─────────────────────────────────────────────────────
+                    if (isAll) {
+                        const emptyPlots = [];
+                        for (let i = 1; i <= totalPlots; i++) {
+                            if (!occupied.has(i)) emptyPlots.push(i);
+                        }
+
+                        if (emptyPlots.length === 0) {
+                            return message.reply(
+                                `❌ All **${totalPlots}** plots are full!\n` +
+                                `🌾 Harvest finished crops with \`wharvest all\``
+                            );
+                        }
+
+                        const toPlant  = Math.min(emptyPlots.length, inv.amount);
+                        const targets  = emptyPlots.slice(0, toPlant);
+
+                        const season     = getCurrentSeason();
+                        const inSeason   = crop.season === "any" || crop.season === season;
+                        const seasonMult = season === "winter" ? 3 : inSeason ? 1 : 2;
+                        const growTime   = crop.growTime * seasonMult;
+                        const now        = Date.now();
+                        const readyAt    = Math.floor((now + growTime) / 1000);
+
+                        let done = 0;
+                        targets.forEach(plotN => {
+                            db.run(
+                                `INSERT OR REPLACE INTO farm_plots
+                                 (user_id, plot_number, seed_type, planted_at, watered_at, fertilized)
+                                 VALUES (?, ?, ?, ?, 0, 0)`,
+                                [user, plotN, seedKey, now],
+                                () => { done++; }
+                            );
+                        });
+
+                        db.run(
+                            `UPDATE inventory SET amount = amount - ? WHERE user_id=? AND item=?`,
+                            [toPlant, user, seedKey]
+                        );
+                        db.run(
+                            `DELETE FROM inventory WHERE user_id=? AND item=? AND amount <= 0`,
+                            [user, seedKey]
+                        );
+
+                        let note = "";
+                        if (season === "winter")  note = "\n❄️ Winter — grows **3× slower**!";
+                        else if (!inSeason)       note = `\n⚠️ Out of season (${season}) — grows **2× slower**!`;
+                        else                      note = `\n🌸 In season! Normal grow speed.`;
+
+                        const remaining = inv.amount - toPlant;
+                        const plotList  = targets.map(n => `#${n}`).join(", ");
+
+                        return message.reply(
+                            `🌱 **Planted ${toPlant}× ${crop.emoji} ${crop.name}** in: **${plotList}**\n\n` +
+                            `⏳ All ready: <t:${readyAt}:R>${note}\n` +
+                            `🌾 Seeds remaining: **${remaining}**\n\n` +
+                            `💡 \`wwater all\` — -25% grow time on all plots\n` +
+                            `💡 \`wfertilize all\` — x2 yield on all plots\n` +
+                            `🌾 \`wcrops\` — view your full farm`
+                        );
+                    }
+
+                    // ── SINGLE PLOT MODE ─────────────────────────────────────────────
                     let target = plotNum;
                     if (target) {
                         if (target < 1 || target > totalPlots)

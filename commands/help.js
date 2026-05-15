@@ -37,12 +37,27 @@ const PAGES = [
             `\`wwith <amount|all>\` — Withdraw from bank\n\n` +
 
             `**━━━ Earning ━━━**\n` +
-            `\`wwork\` [\`wwk\`] — Work for coins (60s cooldown)\n` +
+            `\`wwork\` [\`wwk\`] — Pick a job & complete a mini-game (60s cooldown)\n` +
+            `  └ Jobs unlock by **level** · 8 tiers from Beggar → God of Commerce\n` +
+            `  └ Mini-games: type a phrase · solve math · pick the right choice\n` +
+            `  └ Pay = base × level bonus × **prestige multiplier** (x1.5 per prestige)\n` +
+            `  └ P1=1.5x · P5=3.5x · P10=6x · P20=11x · P45=23.5x\n` +
+            `  └ Correct = full pay · Wrong = 30–40% · Timeout = 15–25%\n\n` +
             `\`wdaily\` [\`wdy\`] — Claim daily reward + streak bonus\n` +
             `\`wcollect\` [\`wcol\`] — Collect passive income from items\n` +
             `\`wfarm\` [\`wfa\`] — Collect farm income (type a code!)\n` +
             `\`wfish\` [\`wfs\`] — Go fishing for coins\n` +
             `\`wclaim\` — Claim a server drop event\n\n` +
+
+            `**━━━ Work Job Tiers ━━━**\n` +
+            `🪙 Lv1   — Beggar · Street Cleaner · Leaflet Dropper\n` +
+            `🚚 Lv5   — Delivery Driver · Kitchen Hand · Security Guard\n` +
+            `🔧 Lv10  — Mechanic · Chef · Nurse\n` +
+            `💻 Lv20  — Programmer · Accountant · Teacher\n` +
+            `⚖️ Lv30  — Lawyer · Surgeon · Architect\n` +
+            `👔 Lv50  — CEO · Crypto Trader · Warung Tycoon\n` +
+            `☢️ Lv75  — Nuclear Engineer · AI Researcher · Space Pilot\n` +
+            `⚡ Lv100 — Shadow Broker · Galaxy Merchant · God of Commerce\n\n` +
 
             `**━━━ Transfers ━━━**\n` +
             `\`wpay @user <amount>\` — Send coins to another player`
@@ -192,7 +207,8 @@ const PAGES = [
             `**━━━ What Is Prestige? ━━━**\n` +
             `Spending coins to reset & climb higher tiers.\n` +
             `Each prestige level gives permanent bonuses:\n` +
-            `• +5% income multiplier per level\n` +
+            `• +5% passive income multiplier per level\n` +
+            `• **+50% work pay per level** (P1=1.5x, P10=6x, P45=23.5x)\n` +
             `• Unlocks exclusive high-income items\n` +
             `• Reduces upgrade costs & raises upgrade success\n` +
             `• Reduces heist cooldowns\n\n` +
@@ -208,10 +224,10 @@ const PAGES = [
             `\`wpbuy\` — Auto-claim all items you qualify for\n\n` +
 
             `**━━━ Notable Milestones ━━━**\n` +
-            `P1  — gold_printer (500/tick)\n` +
+            `P1  — gold_printer (500/tick) · wwork x1.5 pay\n` +
             `P9  — bank (1,000,000/tick)\n` +
             `P12 — space_station (10,000,000/tick)\n` +
-            `P20 — quantum_reactor (25,000,000/tick)\n` +
+            `P20 — quantum_reactor (25,000,000/tick) · wwork x11 pay\n` +
             `P40 — singularity_core (10,000,000,000/tick)\n\n` +
 
             `👑 \`frey\` — Legendary item, P10, 1 per server`
@@ -247,9 +263,8 @@ const PAGES = [
 module.exports = {
     name: "help",
     async execute(message, args) {
-        // Direct category shortcut: whelp gamble, whelp pets, etc.
         const shortcuts = {
-            economy: 1, balance: 1, earn: 1,
+            economy: 1, balance: 1, earn: 1, work: 1, jobs: 1,
             gamble: 2, gambling: 2, casino: 2, bet: 2,
             crime: 3, rob: 3, combat: 3, fight: 3, duel: 3,
             income: 4, items: 4, upgrade: 4, passive: 4,

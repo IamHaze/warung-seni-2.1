@@ -10,14 +10,17 @@ module.exports = {
 
         db.all(`SELECT * FROM farm_plots WHERE user_id=? ORDER BY plot_number`, [user], (err, plots) => {
             if (!plots || plots.length === 0)
-                return message.reply("🌾 No crops to water! Plant something first with `wplant <seed>`.");
+                return message.reply(
+                    "🌾 No crops to water! Plant something first with `wplant <seed>`.\n" +
+                    "💡 Tip: `wplant wheat all` — plants in every empty plot at once!"
+                );
 
-            // Determine which plots to water
+            // ── Determine which plots to water ──────────────────────────────────────
             let toWater;
             if (target && target !== "all") {
-                const num = parseInt(target);
+                const num  = parseInt(target);
                 const plot = plots.find(p => p.plot_number === num);
-                if (!plot)   return message.reply(`❌ No crop in plot **#${num}**!`);
+                if (!plot)            return message.reply(`❌ No crop in plot **#${num}**!`);
                 if (plot.watered_at > 0) return message.reply(`💧 Plot **#${num}** is already watered!`);
                 toWater = [plot];
             } else {
@@ -33,9 +36,11 @@ module.exports = {
                 const crop = CROPS[p.seed_type];
                 if (!crop) return;
 
-                db.run(`UPDATE farm_plots SET watered_at=? WHERE user_id=? AND plot_number=?`, [now, user, p.plot_number]);
+                db.run(
+                    `UPDATE farm_plots SET watered_at=? WHERE user_id=? AND plot_number=?`,
+                    [now, user, p.plot_number]
+                );
 
-                // Calculate new ready time with 25% discount applied to full grow time
                 const newGrowTime = Math.floor(crop.growTime * 0.75);
                 const newReadyAt  = Math.floor((p.planted_at + newGrowTime) / 1000);
                 const isReady     = now - p.planted_at >= newGrowTime;
@@ -50,7 +55,8 @@ module.exports = {
                 `💧 **Watered ${toWater.length} plot${toWater.length > 1 ? "s" : ""}!**\n\n` +
                 lines.join("\n") + "\n\n" +
                 `⚡ Grow time reduced by **25%**!\n` +
-                `🧪 Use \`wfertilize [plot#]\` to double the yield on harvest`
+                `💡 \`wfertilize all\` — double yield on all plots\n` +
+                `🌾 \`wcrops\` — view your full farm`
             );
         });
     }
