@@ -1,7 +1,6 @@
 const db = require("../database/db");
 
 const DAILY_LIMIT = 1_000_000_000_000_000;
-const PER_COLLECT_CAP = 10_000_000_000_000;
 
 function todayKey() {
     const d = new Date();
@@ -35,7 +34,7 @@ module.exports = {
             }
 
             const remaining = DAILY_LIMIT - dayTotal;
-            const cappedPending = Math.min(pending, PER_COLLECT_CAP, remaining);
+            const cappedPending = Math.min(pending, remaining);
 
             db.run(
                 `UPDATE users SET wallet = wallet + ?, pending_income = pending_income - ?,
@@ -44,19 +43,14 @@ module.exports = {
                 (err) => {
                     if (err) return message.reply("❌ DB error");
 
-                    let extra = "";
-                    if (pending > cappedPending) {
-                        const leftPending = pending - cappedPending;
-                        extra = `\n📦 Remaining pending: **${leftPending.toLocaleString()}** (capped — collect again later)`;
-                    }
-
                     const newDayTotal = dayTotal + cappedPending;
                     const dayRemaining = DAILY_LIMIT - newDayTotal;
+                    const leftPending = pending - cappedPending;
 
                     message.reply(
                         `✅ **Income Collected!**\n\n` +
                         `💰 **+${cappedPending.toLocaleString()}** coins added to wallet` +
-                        extra +
+                        (leftPending > 0 ? `\n📦 Remaining pending: **${leftPending.toLocaleString()}** (daily limit reached)` : "") +
                         `\n📅 Daily collected: **${newDayTotal.toLocaleString()}** / **${DAILY_LIMIT.toLocaleString()}**` +
                         (dayRemaining > 0 ? `\n🔓 Remaining today: **${dayRemaining.toLocaleString()}**` : `\n🔒 Daily limit reached!`)
                     );
