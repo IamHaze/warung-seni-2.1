@@ -1,7 +1,7 @@
 const db = require("../database/db");
 
-const DAILY_LIMIT = 100_000_000_000;
-const PER_COLLECT_CAP = 1_000_000_000;
+const DAILY_LIMIT = 1_000_000_000_000_000;
+const PER_COLLECT_CAP = 10_000_000_000_000;
 
 function todayKey() {
     const d = new Date();
