@@ -38,7 +38,7 @@ const PAGES = [
     `🎟️ \`lottery_ticket\`— 💰 500       | Scratch for prize up to 500k\n\n` +
 
     `**━━━ 👑 Legendary ━━━**\n` +
-    `👑 \`shadow_crown\`  — 💰 5,000,000 | 1 per server · 24hr expiry\n` +
+    `👑 \`shadow_crown\`  — 💰 20T | 24hr expiry\n` +
     `　　　　　　　　Steal ALL coins & items from target\n\n` +
 
     `🌟 Prestige items → \`wpshop\``,

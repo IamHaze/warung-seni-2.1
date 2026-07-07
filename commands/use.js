@@ -84,7 +84,7 @@ module.exports = {
 
                                 target.send(
                                     `💀 **YOU HAVE BEEN DESTROYED**\n\n` +
-                                    `👑 Someone used the **Shadow Crown** on you!\n` +
+                                    `👑 **${message.author.username}** used the **Shadow Crown** on you!\n` +
                                     `💰 Lost: **${totalStolen}** coins (wallet + bank)\n` +
                                     `📦 All your items have been taken.\n\n` +
                                     `*Start over and reclaim your empire...*`
