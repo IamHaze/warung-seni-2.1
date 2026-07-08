@@ -2,7 +2,7 @@
  * dropEvents.js
  * Manages random money drops in the configured drop channel.
  *
- * - Max 32 spawns per day (resets at midnight)
+ * - Max 32 spawns per day (resets at midnight MYT)
  * - Random amount: 10B – 600B
  * - Random spawn interval: 20–60 min between drops
  * - Drop expires after 10 minutes if unclaimed
@@ -18,6 +18,7 @@
 
 const db     = require("../database/db");
 const config = require("../config.json");
+const { getMYTDayKey } = require("./timezone");
 
 const DROP_MIN      = 10_000_000_000;   // 10 Billion
 const DROP_MAX      = 600_000_000_000;  // 600 Billion
@@ -40,8 +41,7 @@ function fmt(n) {
 }
 
 function getDayKey() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return getMYTDayKey().toString();
 }
 
 function getRandomAmount() {

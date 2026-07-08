@@ -50,7 +50,9 @@ const LOCATIONS = [
     { name: "Abyss", emoji: "🕳️", mult: 3.5, minLevel: 30 }
 ];
 
-/* ───── WEATHER (stable per UTC day) ───── */
+/* ───── WEATHER (stable per MYT day) ───── */
+const { getMYTDayKey } = require("../core/timezone");
+
 const WEATHER = [
     { name: "Sunny",  emoji: "☀️",  catchMod: 0,     rarityMod: 0    },
     { name: "Cloudy", emoji: "☁️",  catchMod: 0.04,  rarityMod: 0.04 },
@@ -59,7 +61,8 @@ const WEATHER = [
 ];
 
 function getTodayWeather() {
-    const seed = (Math.floor(Date.now() / 86400000) * 2654435761) >>> 0;
+    const dayKey = getMYTDayKey();
+    const seed = (dayKey * 2654435761) >>> 0;
     return WEATHER[seed % WEATHER.length];
 }
 

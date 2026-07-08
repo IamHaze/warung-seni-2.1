@@ -1,17 +1,13 @@
 const db = require("../database/db");
+const { getMYTDayKey } = require("../core/timezone");
 
 const DAILY_LIMIT = 1_000_000_000_000_000;
-
-function todayKey() {
-    const d = new Date();
-    return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-}
 
 module.exports = {
     name: "collect",
     execute(message) {
         const user = message.author.id;
-        const today = todayKey();
+        const today = getMYTDayKey();
 
         db.get(`SELECT pending_income, collect_day, collect_day_total FROM users WHERE user_id=?`, [user], (err, row) => {
             if (err || !row) return message.reply("❌ User error");
@@ -29,7 +25,7 @@ module.exports = {
                     `🚫 **Daily collect limit reached!**\n\n` +
                     `📅 Limit: **${DAILY_LIMIT.toLocaleString()}** per day\n` +
                     `✅ Already collected: **${dayTotal.toLocaleString()}** today\n` +
-                    `⏳ Resets at midnight UTC`
+                    `⏳ Resets at midnight (MYT/Kuala Lumpur)`
                 );
             }
 

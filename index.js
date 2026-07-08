@@ -228,19 +228,16 @@ setInterval(() => {
 
 
 /* ================= DAILY LEADERBOARD COMPETITION ================= */
+const { getMYTDayKey, isMYTMidnight } = require("./core/timezone");
+
 const LEADERBOARD_PRIZES = {
     first:  20_000_000_000_000,  // 20PB
     second: 10_000_000_000_000,  // 10PB
     third:   5_000_000_000_000   // 5PB
 };
 
-function getDayKey() {
-    const d = new Date();
-    return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-}
-
 async function checkDailyLeaderboard(client) {
-    const today = getDayKey();
+    const today = getMYTDayKey();
     const channel = client.channels.cache.get(config.eventChannel);
     if (!channel) return;
 
@@ -267,7 +264,7 @@ async function checkDailyLeaderboard(client) {
                             channel.send(
                                 `🏆 **NEW LEADER!**\n\n` +
                                 `<@${first_id}> has taken **#1** on the daily leaderboard!\n` +
-                                `💰 Prize at midnight: **20PB**`
+                                `💰 Prize at midnight (MYT): **20PB**`
                             ).catch(() => {});
                         }
 
@@ -291,9 +288,9 @@ async function checkDailyLeaderboard(client) {
     });
 }
 
-// Award prizes at midnight UTC and reset tracking
+// Award prizes at midnight MYT and reset tracking
 async function awardDailyLeaderboard(client) {
-    const today = getDayKey();
+    const today = getMYTDayKey();
     const channel = client.channels.cache.get(config.eventChannel);
     if (!channel) return;
 
@@ -335,7 +332,7 @@ async function awardDailyLeaderboard(client) {
         channel.send(msg).catch(() => {});
 
         // Create new tracking for next day
-        const tomorrow = getDayKey();
+        const tomorrow = getMYTDayKey();
         db.run(
             `INSERT OR IGNORE INTO daily_leaderboard (day_key, first_id, second_id, third_id, awarded_at) VALUES (?, NULL, NULL, NULL, 0)`,
             [tomorrow]
@@ -348,10 +345,9 @@ setInterval(() => {
     checkDailyLeaderboard(client);
 }, 300000);
 
-// Award prizes at midnight UTC (check every minute)
+// Award prizes at midnight MYT (check every minute)
 setInterval(() => {
-    const now = new Date();
-    if (now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
+    if (isMYTMidnight()) {
         awardDailyLeaderboard(client);
     }
 }, 60000);
