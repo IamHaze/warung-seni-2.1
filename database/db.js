@@ -151,6 +151,17 @@ db.serialize(() => {
         )
     `);
 
+    // DAILY LEADERBOARD TRACKING
+    db.run(`
+        CREATE TABLE IF NOT EXISTS daily_leaderboard (
+            day_key      TEXT PRIMARY KEY,
+            first_id     TEXT,
+            second_id    TEXT,
+            third_id     TEXT,
+            awarded_at   INTEGER DEFAULT 0
+        )
+    `);
+
     // ── SAFE COLUMN ADDITIONS (won't fail if column already exists) ──
     const userColumns = [
         ["heat",              "INTEGER DEFAULT 0"],

@@ -15,7 +15,8 @@ const PRESTIGE_ITEMS = new Set([
     "nebula_refinery", "cosmic_treasury", "singularity_core",
     "multiverse_gate", "infinity_vault", "omega_forge",
     "eternal_throne", "genesis_engine", "ascension_matrix",
-    "divine_nexus", "absolute_zero", "omnipress", "creator_beacon"
+    "divine_nexus", "absolute_zero", "omnipress", "creator_beacon",
+    "warung_island"
 ]);
 
 // Prestige items have a higher upgrade cost multiplier (10x base)

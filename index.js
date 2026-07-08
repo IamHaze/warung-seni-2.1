@@ -227,4 +227,133 @@ setInterval(() => {
 }, 600000);
 
 
+/* ================= DAILY LEADERBOARD COMPETITION ================= */
+const LEADERBOARD_PRIZES = {
+    first:  20_000_000_000_000,  // 20PB
+    second: 10_000_000_000_000,  // 10PB
+    third:   5_000_000_000_000   // 5PB
+};
+
+function getDayKey() {
+    const d = new Date();
+    return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+
+async function checkDailyLeaderboard(client) {
+    const today = getDayKey();
+    const channel = client.channels.cache.get(config.eventChannel);
+    if (!channel) return;
+
+    db.get(`SELECT * FROM daily_leaderboard WHERE day_key=?`, [today], async (err, record) => {
+        if (err) return;
+
+        // Get top 3 richest
+        db.all(
+            `SELECT user_id, (wallet + bank) as total FROM users ORDER BY total DESC LIMIT 3`,
+            [],
+            async (err, top3) => {
+                if (err || !top3 || top3.length === 0) return;
+
+                const first_id  = top3[0]?.user_id || null;
+                const second_id = top3[1]?.user_id || null;
+                const third_id  = top3[2]?.user_id || null;
+
+                // Check if already awarded today
+                if (record?.awarded_at > 0) {
+                    // Already awarded - check for changes and notify
+                    if (record.first_id !== first_id || record.second_id !== second_id || record.third_id !== third_id) {
+                        // Leaderboard changed! Notify new #1
+                        if (first_id && record.first_id !== first_id) {
+                            channel.send(
+                                `🏆 **NEW LEADER!**\n\n` +
+                                `<@${first_id}> has taken **#1** on the daily leaderboard!\n` +
+                                `💰 Prize at midnight: **20PB**`
+                            ).catch(() => {});
+                        }
+
+                        // Update the tracking
+                        db.run(
+                            `UPDATE daily_leaderboard SET first_id=?, second_id=?, third_id=? WHERE day_key=?`,
+                            [first_id, second_id, third_id, today]
+                        );
+                    }
+                    return;
+                }
+
+                // Create/update tracking for today
+                db.run(
+                    `INSERT INTO daily_leaderboard (day_key, first_id, second_id, third_id, awarded_at) VALUES (?, ?, ?, ?, 0)
+                     ON CONFLICT(day_key) DO UPDATE SET first_id=?, second_id=?, third_id=?`,
+                    [today, first_id, second_id, third_id, first_id, second_id, third_id]
+                );
+            }
+        );
+    });
+}
+
+// Award prizes at midnight UTC and reset tracking
+async function awardDailyLeaderboard(client) {
+    const today = getDayKey();
+    const channel = client.channels.cache.get(config.eventChannel);
+    if (!channel) return;
+
+    db.get(`SELECT * FROM daily_leaderboard WHERE day_key=?`, [today], async (err, record) => {
+        if (err || !record || record.awarded_at > 0) return;
+
+        const winners = [];
+        if (record.first_id) winners.push({ id: record.first_id, prize: LEADERBOARD_PRIZES.first, place: 1 });
+        if (record.second_id) winners.push({ id: record.second_id, prize: LEADERBOARD_PRIZES.second, place: 2 });
+        if (record.third_id) winners.push({ id: record.third_id, prize: LEADERBOARD_PRIZES.third, place: 3 });
+
+        if (winners.length === 0) return;
+
+        // Award prizes
+        for (const w of winners) {
+            db.run(`UPDATE users SET wallet = wallet + ? WHERE user_id=?`, [w.prize, w.id]);
+        }
+
+        // Mark as awarded
+        db.run(`UPDATE daily_leaderboard SET awarded_at=? WHERE day_key=?`, [Date.now(), today]);
+
+        // Announce winners
+        let msg = `🏆 **DAILY LEADERBOARD RESULTS!**\n\n`;
+        msg += `🏅 Top 3 richest players have been rewarded!\n\n`;
+
+        for (const w of winners) {
+            let username = "Unknown";
+            try {
+                const user = await client.users.fetch(w.id);
+                username = user.username;
+            } catch {}
+
+            const medal = w.place === 1 ? "🥇" : w.place === 2 ? "🥈" : "🥉";
+            const prizeStr = w.prize === LEADERBOARD_PRIZES.first ? "20PB" : w.prize === LEADERBOARD_PRIZES.second ? "10PB" : "5PB";
+            msg += `${medal} **#${w.place}** <@${w.id}> — **+${prizeStr}**\n`;
+        }
+
+        msg += `\n*New competition starts now!*`;
+        channel.send(msg).catch(() => {});
+
+        // Create new tracking for next day
+        const tomorrow = getDayKey();
+        db.run(
+            `INSERT OR IGNORE INTO daily_leaderboard (day_key, first_id, second_id, third_id, awarded_at) VALUES (?, NULL, NULL, NULL, 0)`,
+            [tomorrow]
+        );
+    });
+}
+
+// Check leaderboard every 5 minutes
+setInterval(() => {
+    checkDailyLeaderboard(client);
+}, 300000);
+
+// Award prizes at midnight UTC (check every minute)
+setInterval(() => {
+    const now = new Date();
+    if (now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
+        awardDailyLeaderboard(client);
+    }
+}, 60000);
+
 client.login(config.token);

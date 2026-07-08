@@ -48,7 +48,7 @@ function runShadowBroker(client) {
             channel.send(
                 `🚨 **SHADOW BROKER ALERT**\n\n` +
                 `🕵️ The Shadow Broker has locked onto a target...\n` +
-                `🎯 Target: **${username}**\n\n` +
+                `🎯 Target: <@${target.user_id}>\n\n` +
                 `⏳ **30 seconds** to \`wdep\` your coins to the bank!\n` +
                 `💀 Amount at risk: **${stealAmount}** coins`
             );
@@ -66,7 +66,7 @@ function runShadowBroker(client) {
 
                         if (actualSteal <= 0) {
                             channel.send(
-                                `😤 **Shadow Broker**: *${username} moved their coins in time. Next time...*`
+                                `😤 **Shadow Broker**: *<@${target.user_id}> moved their coins in time. Next time...*`
                             );
                             return;
                         }
@@ -79,7 +79,7 @@ function runShadowBroker(client) {
 
                                 channel.send(
                                     `💀 **SHADOW BROKER STRIKES!**\n\n` +
-                                    `🕵️ Target: **${username}**\n` +
+                                    `🕵️ Target: <@${target.user_id}>\n` +
                                     `💸 Stolen: **${actualSteal}** coins\n\n` +
                                     `*The Shadow Broker vanishes into the dark...*`
                                 );
