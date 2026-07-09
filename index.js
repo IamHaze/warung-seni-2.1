@@ -82,25 +82,6 @@ client.on("messageCreate", async (message) => {
 });
 
 /* ================= PASSIVE INCOME ================= */
-const ITEM_INCOME = {
-    printer:        50,
-    factory:        300,
-    lab:            1200,
-    quantum_core:   5000,
-    warehouse:      15000,
-    gold_printer:   500,
-    ai_factory:     2000,
-    dark_lab:       10000,
-    gold_mine:      25000,
-    diamond_mine:   60000,
-    power_plant:    120000,
-    oil_refinery:   250000,
-    offshore_drill: 500000,
-    bank:           1000000,
-    oil_rig:        2500000,
-    frey:           5000000
-};
-
 setInterval(() => {
     console.log("💸 Passive tick");
 
@@ -108,8 +89,8 @@ setInterval(() => {
         if (err || !rows) return;
 
         rows.forEach(entry => {
-            const base = ITEM_INCOME[entry.item];
-            if (!base) return;
+            const itemData = config.items[entry.item];
+            if (!itemData || !itemData.income) return;
 
             const level = entry.level || 1;
 
@@ -117,7 +98,7 @@ setInterval(() => {
                 if (err || !user) return;
 
                 const bonus  = 1 + (user.prestige * config.prestige.income_bonus_per_level);
-                const income = Math.floor(base * level * bonus);
+                const income = Math.floor(itemData.income * level * bonus);
 
                 db.run(
                     `UPDATE users SET pending_income = pending_income + ? WHERE user_id=?`,
