@@ -1,15 +1,11 @@
 const db = require("../database/db");
-const { getMYTDayKey } = require("../core/timezone");
-
-const DAILY_LIMIT = 1_000_000_000_000_000;
 
 module.exports = {
     name: "collect",
     execute(message) {
         const user = message.author.id;
-        const today = getMYTDayKey();
 
-        db.get(`SELECT pending_income, collect_day, collect_day_total FROM users WHERE user_id=?`, [user], (err, row) => {
+        db.get(`SELECT pending_income FROM users WHERE user_id=?`, [user], (err, row) => {
             if (err || !row) return message.reply("❌ User error");
 
             const pending = row.pending_income || 0;
@@ -17,38 +13,16 @@ module.exports = {
                 return message.reply("📭 No pending income! Items generate income every minute.");
             }
 
-            const collectDay = row.collect_day || 0;
-            const dayTotal = collectDay === today ? (row.collect_day_total || 0) : 0;
-
-            if (dayTotal >= DAILY_LIMIT) {
-                return message.reply(
-                    `🚫 **Daily collect limit reached!**\n\n` +
-                    `📅 Limit: **${DAILY_LIMIT.toLocaleString()}** per day\n` +
-                    `✅ Already collected: **${dayTotal.toLocaleString()}** today\n` +
-                    `⏳ Resets at midnight (MYT/Kuala Lumpur)`
-                );
-            }
-
-            const remaining = DAILY_LIMIT - dayTotal;
-            const cappedPending = Math.min(pending, remaining);
-
             db.run(
-                `UPDATE users SET wallet = wallet + ?, pending_income = pending_income - ?,
-                 collect_day = ?, collect_day_total = ? WHERE user_id=?`,
-                [cappedPending, cappedPending, today, dayTotal + cappedPending, user],
+                `UPDATE users SET wallet = wallet + ?, pending_income = 0 WHERE user_id=?`,
+                [pending, user],
                 (err) => {
                     if (err) return message.reply("❌ DB error");
 
-                    const newDayTotal = dayTotal + cappedPending;
-                    const dayRemaining = DAILY_LIMIT - newDayTotal;
-                    const leftPending = pending - cappedPending;
-
                     message.reply(
                         `✅ **Income Collected!**\n\n` +
-                        `💰 **+${cappedPending.toLocaleString()}** coins added to wallet` +
-                        (leftPending > 0 ? `\n📦 Remaining pending: **${leftPending.toLocaleString()}** (daily limit reached)` : "") +
-                        `\n📅 Daily collected: **${newDayTotal.toLocaleString()}** / **${DAILY_LIMIT.toLocaleString()}**` +
-                        (dayRemaining > 0 ? `\n🔓 Remaining today: **${dayRemaining.toLocaleString()}**` : `\n🔒 Daily limit reached!`)
+                        `💰 **+${pending.toLocaleString()}** coins added to wallet\n` +
+                        `📦 Pending income cleared — collect again anytime!`
                     );
                 }
             );

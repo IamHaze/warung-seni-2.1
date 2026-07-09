@@ -6,6 +6,7 @@ module.exports = {
     "sl":   "slots",
     "gb":   "gamble",
     "col":  "collect",
+    "wcol": "collect",
     "pres": "prestige",
     "fs":   "fish",
     "fa":   "farm",
