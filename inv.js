@@ -1,19 +1,24 @@
 const db = require("../database/db");
 
 module.exports = {
+    name: "inv",
     execute(message) {
         const user = message.author.id;
 
-        db.all(`SELECT * FROM inventory WHERE user_id=?`, [user], (err, rows) => {
-            if (!rows.length) return message.reply("Empty inventory");
+        db.all("SELECT * FROM inventory WHERE user_id=?", [user], (err, rows) => {
+            if (err) return message.reply("❌ DB error");
 
-            let text = "🎒 Inventory:\n";
+            if (!rows || rows.length === 0) {
+                return message.reply("🎒 Empty inventory");
+            }
+
+            let msg = "🎒 Inventory:\n";
 
             rows.forEach(i => {
-                text += `${i.item} x${i.amount} (lvl ${i.level || 1})\n`;
+                msg += `• ${i.item} x${i.amount || 0} (lvl ${i.level || 1})\n`;
             });
 
-            message.reply(text);
+            message.reply(msg);
         });
     }
 };

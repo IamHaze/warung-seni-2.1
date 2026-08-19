@@ -2,24 +2,24 @@ const db = require("../../database/db");
 const isAdmin = require("../../utils/isAdmin");
 
 module.exports = {
-    name: "give",
+    name: "setprestige",
     execute(message, args) {
         if (!isAdmin(message.author.id)) {
             return message.reply("❌ No permission");
         }
 
         const target = message.mentions.users.first();
-        const amount = parseInt(args[1]);
+        const level = parseInt(args[1]);
 
         if (!target) return message.reply("❌ Mention a user");
-        if (!amount || amount <= 0) return message.reply("❌ Invalid amount");
+        if (isNaN(level) || level < 0) return message.reply("❌ Invalid level");
 
         db.run(
-            "UPDATE users SET wallet = wallet + ? WHERE user_id=?",
-            [amount, target.id],
+            "UPDATE users SET prestige = ? WHERE user_id=?",
+            [level, target.id],
             (err) => {
                 if (err) return message.reply("❌ DB error");
-                message.reply(`💸 Gave **${amount}** coins to <@${target.id}>`);
+                message.reply(`🌟 Set **${target.username}**'s prestige to **${level}**`);
             }
         );
     }

@@ -1,28 +1,16 @@
-const db = require("./database/db");
-const getUser = require("./core/getUser");
+const getUser = require("../core/getUser");
 
 module.exports = {
     name: "bal",
     execute(message) {
-
         const user = message.author.id;
 
-        getUser(user, () => {
+        getUser(user, (err, row) => {
+            if (!row) return message.reply("❌ Error loading user");
 
-            db.get(
-                `SELECT wallet, bank, prestige FROM users WHERE user_id=?`,
-                [user],
-                (err, row) => {
-
-                    message.reply(
-                        `💰 Wallet: ${row.wallet}\n` +
-                        `🏦 Bank: ${row.bank}\n` +
-                        `🌟 Prestige: ${row.prestige || 0}`
-                    );
-
-                }
+            message.reply(
+                `💰 Wallet: ${row.wallet.toLocaleString()} | 🏦 Bank: ${row.bank.toLocaleString()}\n🌟 Prestige: ${row.prestige}`
             );
-
         });
     }
 };
